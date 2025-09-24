@@ -1,0 +1,106 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: nexus
+  name: nexus
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nexus
+  template:
+    metadata:
+      labels:
+        app: nexus
+    spec:
+      initContainers:
+        - name: chown-nexusdata-owner-to-nexus
+          image: busybox:1.34.1
+          command: [ "/bin/sh","-c" ]
+          resources:
+            requests:
+              cpu: "0.25"
+              memory: "512M"
+            limits:
+              cpu: "0.5"
+              memory: "2304M"
+          args: [ "chown -R 200:200 /nexus-data" ]
+          volumeMounts:
+            - name: data-vol
+              mountPath: /nexus-data
+      containers:
+        - image: quay.io/validatedpatterns/nexus3:3.83.2-ubi
+          imagePullPolicy: IfNotPresent
+          name: nexus
+          env:
+            - name: NEXUS_SEARCH_INDEX_REBUILD_ON_STARTUP
+              value: "true"
+            - name: INSTALL4J_ADD_VM_PARAMS
+              value: "-Xms1g -Xmx2g -XX:MaxDirectMemorySize=2g -Djava.util.prefs.userRoot=${NEXUS_DATA}/javaprefs"
+          resources:
+            requests:
+              cpu: "0.25"
+              memory: "512M"
+            limits:
+              cpu: "0.5"
+              memory: "2304M"
+          ports:
+            - containerPort: 8081
+          volumeMounts:
+            - name: data-vol
+              mountPath: /nexus-data
+          securityContext:
+            runAsUser: 200
+      serviceAccount: toolstack-sa
+      volumes:
+        - name: data-vol
+          persistentVolumeClaim:
+            claimName: nexus-pv
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: nexus
+  name: nexus
+spec:
+  ports:
+  - name: 8081-tcp
+    port: 8081
+    protocol: TCP
+    targetPort: 8081
+  selector:
+    app: nexus
+  sessionAffinity: None
+  type: ClusterIP
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  labels:
+    app: nexus
+  name: nexus
+spec:
+  to:
+    kind: Service
+    name: nexus
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    app: nexus
+  name: nexus-pv
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  #storageClassName: "${STORAGE_CLASS_NAME}"
+---
