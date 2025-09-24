@@ -1,0 +1,11 @@
+apiVersion: tower.ansible.com/v1alpha1
+kind: JobTemplate
+metadata:
+  name: main-job
+  namespace: ansible-automation-platform
+spec:
+  connection_secret: connection-secret
+  inventory: Demo Inventory
+  name: main-job
+  playbook: hello_world.yml
+  project: Demo Project
