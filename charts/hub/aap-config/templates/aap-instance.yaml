@@ -9,7 +9,7 @@ spec:
     replicas: 1
   database:
     idle_disabled: false
-    postgres_data_volume_init: false
-  no_log: true
+    postgres_data_volume_init: true
+  no_log: false
   redis_mode: standalone
   route_tls_termination_mechanism: Edge
