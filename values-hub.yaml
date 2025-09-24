@@ -2,6 +2,7 @@ clusterGroup:
   name: hub
   isHubCluster: true
   namespaces:
+    - aap-config
     - ansible-automation-platform
     - golang-external-secrets
     - open-cluster-management
@@ -57,11 +58,21 @@ clusterGroup:
       project: hub
       chart: golang-external-secrets
       chartVersion: 0.1.*
-    aap-config:
-      name: aap-config
+    aap:
+      name: ansible-automation-platform
       namespace: ansible-automation-platform
       project: hub
-      path: charts/hub/aap-config
+      chart: ansible-automation-platform-instance
+      chartVersion: 0.1.*
+
+    aap-config:
+      name: aap-config
+      namespace: aap-config
+      project: hub
+      chart: aap-config
+      chartVersion: 0.1.*
+      extraValueFiles:
+        - '$patternref/overrides/values-aap-config.yaml'
   imperative:
     # NOTE: We *must* use lists and not hashes. As hashes lose ordering once parsed by helm
     # The default schedule is every 10 minutes: imperative.schedule
