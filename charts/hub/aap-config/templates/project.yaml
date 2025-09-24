@@ -1,0 +1,17 @@
+kind: AnsibleProject
+apiVersion: tower.ansible.com/v1alpha1
+metadata:
+  name: sample-project
+  namespace: ansible-automation-platform
+spec:
+  name: test
+  description: "Demo project synced from Git"
+  organization: Default
+  scm_type: git
+  scm_url: "https://github.com/ansible/ansible-examples.git"
+  scm_branch: "main"
+  scm_update_on_launch: true
+  scm_delete_on_update: false
+  scm_update_cache_timeout: 600
+  credential: my-git-credential   # optional if repo is private
+  connection_secret: your-mama

@@ -1,0 +1,2 @@
+- Figure out a way to manage the manifest that enables AAP (rh credentials are no go, we need a way to push the manifest via vault into a secret). Will be a secret and will be referenced in one of the yamls somewhere
+- 
