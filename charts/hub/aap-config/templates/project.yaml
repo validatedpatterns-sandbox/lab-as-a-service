@@ -14,4 +14,5 @@ spec:
   scm_delete_on_update: false
   scm_update_cache_timeout: 600
   credential: my-git-credential   # optional if repo is private
-  connection_secret: your-mama
+  connection_secret: test-connection-secret
+  state: present

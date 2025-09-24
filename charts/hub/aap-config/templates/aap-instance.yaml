@@ -1,12 +1,21 @@
+---
 apiVersion: aap.ansible.com/v1alpha1
 kind: AnsibleAutomationPlatform
 metadata:
   name: aap
   namespace: ansible-automation-platform
 spec:
+  controller:
+    disabled: false
+  hub:
+    disabled: false
   api:
     log_level: INFO
     replicas: 1
+  eda:
+    disabled: false
+  lightspeed:
+    disabled: true
   database:
     idle_disabled: false
     postgres_data_volume_init: true
