@@ -1,78 +1,43 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "grafana.fullname" . }}
-  labels:
-    {{- include "grafana.labels" . | nindent 4 }}
+  name: {{ .Values.name }}
+  labels: 
+    app: {{ .Values.name }}
 spec:
-  {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
-  {{- end }}
   selector:
     matchLabels:
-      {{- include "grafana.selectorLabels" . | nindent 6 }}
+      app: {{ .Values.name }}
   template:
     metadata:
-      {{- with .Values.podAnnotations }}
-      annotations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
       labels:
-        {{- include "grafana.labels" . | nindent 8 }}
-        {{- with .Values.podLabels }}
-        {{- toYaml . | nindent 8 }}
-        {{- end }}
+        app: {{ .Values.name }}
     spec:
-      {{- with .Values.imagePullSecrets }}
-      imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      serviceAccountName: {{ include "grafana.serviceAccountName" . }}
-      {{- with .Values.podSecurityContext }}
       securityContext:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
+        runAsUser: 0
+        fsGroup: 0
       containers:
-        - name: {{ .Chart.Name }}
-          {{- with .Values.securityContext }}
-          securityContext:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+        - image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+          name: {{ .Values.name }}     
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: GF_SECURITY_ADMIN_PASSWORD
+              value: {{ .Values.env.security_admin_pass }}
           ports:
-            - name: http
-              containerPort: {{ .Values.service.port }}
-              protocol: TCP
-          {{- with .Values.livenessProbe }}
-          livenessProbe:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-          {{- with .Values.readinessProbe }}
-          readinessProbe:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-          {{- with .Values.resources }}
+            - containerPort: {{ .Values.container_port}}
           resources:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-          {{- with .Values.volumeMounts }}
+            requests:
+              cpu:  {{ .Values.resources.cpu_request }}
+              memory: {{ .Values.resources.memory_request }}
+            limits:
+              cpu: {{ .Values.resources.cpu_limit }}
+              memory: {{ .Values.resources.memory_limit }}
           volumeMounts:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-      {{- with .Values.volumes }}
+            - name: {{ .Values.volumeMount.name }}
+              mountPath: {{ .Values.volumeMount.path }}
+      serviceAccount: {{ .Values.serviceAccount.name }}
       volumes:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.nodeSelector }}
-      nodeSelector:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.affinity }}
-      affinity:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.tolerations }}
-      tolerations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
+        - name: {{ .Values.volumeMount.name }}
+          persistentVolumeClaim: 
+            claimName: {{ .Values.name }}-pvc
