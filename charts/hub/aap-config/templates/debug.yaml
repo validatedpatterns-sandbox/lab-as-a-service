@@ -5,6 +5,14 @@ metadata:
 spec:
   serviceAccountName: {{ $.Values.serviceAccountName }}
   containers:
-    - image: quay.io/rhn_support_mbaldess/ansible-aap-config-container:latest
-      name: debug
+    - name: debug
+      image: quay.io/rhn_support_mbaldess/ansible-aap-config-container:latest
       command: ["/usr/bin/sleep", "infinity"]
+      volumeMounts:
+        - name: aap-manifest-volume
+          mountPath: "/var/aap-manifest/"
+          readOnly: true
+  volumes:
+    - name: aap-manifest-volume
+      secret:
+        secretName: aap-manifest
