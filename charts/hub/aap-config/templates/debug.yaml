@@ -9,6 +9,9 @@ spec:
       image: quay.io/rhn_support_mbaldess/ansible-aap-config-container:latest
       command: ["/usr/bin/sleep", "infinity"]
       volumeMounts:
+        - name: helm-values
+          mountPath: "/var/helm-values/"
+          readOnly: true
         - name: aap-manifest-volume
           mountPath: "/var/aap-manifest/"
           readOnly: true
@@ -16,6 +19,9 @@ spec:
           mountPath: "/var/aap-admin-password/"
           readOnly: true
   volumes:
+    - name: helm-values
+      configMap:
+        name: helm-values
     - name: aap-admin-password
       secret:
         secretName: aap-admin-password
