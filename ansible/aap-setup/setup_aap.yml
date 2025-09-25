@@ -3,6 +3,10 @@
   ansible.builtin.include_vars:
     file: "/var/helm-values/values.yaml"
 
+- name: Read
+  ansible.builtin.include_vars:
+    file: "./vars.yml"
+
 - name: debug
   ansible.builtin.debug:
     msg: "{{ global }}"
@@ -12,6 +16,7 @@
     aap_hostname: "aap-ansible-automation-platform.{{ global.localClusterDomain }}"
     api_prefix: "api/controller/v2"
     admin_password: "{{ lookup('file', '/var/aap-admin-password/password') }}"
+    aap_validate_certs: false
 
 - name: debug2
   ansible.builtin.debug:

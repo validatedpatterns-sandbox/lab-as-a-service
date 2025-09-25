@@ -1,0 +1,219 @@
+# vim: ft=yaml.ansible
+---
+aap_organizations:
+  - name: HMI Demo
+    galaxy_credentials: Ansible Galaxy
+
+controller_settings:
+  - name: AWX_COLLECTIONS_ENABLED
+    value: true
+
+  - name: AWX_ROLES_ENABLED
+    value: true
+
+controller_projects:
+  - name: Demo Project
+    state: absent
+
+  - name: AEG GitOps
+    organization: HMI Demo
+    scm_branch: v1
+    scm_clean: "no"
+    scm_delete_on_update: "no"
+    scm_type: git
+    scm_update_on_launch: "yes"
+    scm_url: https://github.com/validatedpatterns-demos/rhvp.ansible_edge_hmi.git
+    wait: true
+    update_project: true
+
+  - name: AEG GitOps Inventory
+    organization: HMI Demo
+    scm_branch: main
+    scm_clean: "no"
+    scm_delete_on_update: "no"
+    scm_type: git
+    scm_update_on_launch: "yes"
+    scm_url: https://github.com/validatedpatterns-demos/ansible-edge-gitops-hmi-inventory.git
+    wait: true
+    update_project: true
+
+controller_inventories:
+  - name: HMI Demo Kiosks
+    organization: HMI Demo
+    kind: smart
+    host_filter: name__icontains=kiosk
+    inventory: HMI Demo Static Inventory
+
+  - name: HMI Demo Inventory
+    organization: HMI Demo
+
+controller_inventory_sources:
+  - name: HMI Demo Static Inventory
+    inventory: HMI Demo Inventory
+    organization: HMI Demo
+    source: scm
+    source_project: AEG GitOps Inventory
+    source_path: inventory
+    update_on_launch: true
+
+controller_credential_types:
+  - name: RHSMcredential
+    description: RHSM Credentials
+    kind: cloud
+    inputs:
+      fields:
+        - id: username
+          type: string
+          label: RHSM User name
+          secret: true
+        - id: password
+          type: string
+          label: RHSM password
+          secret: true
+      required:
+        - username
+        - password
+    injectors:
+      extra_vars:
+        rhsm_username: "{  { username }}"
+        rhsm_password: "{  { password }}"
+
+  - name: KioskExtraParams
+    description: Extra params for Kiosk Container
+    kind: cloud
+    inputs:
+      fields:
+        - id: container_extra_params
+          type: string
+          label: Container Extra params including Gateway Admin password
+          secret: true
+      required:
+        - container_extra_params
+    injectors:
+      extra_vars:
+        container_extra_params: "{  { container_extra_params }}"
+
+controller_templates:
+  - name: Demo Job Template
+    state: absent
+
+  - name: Ping Playbook
+    organization: HMI Demo
+    project: AEG GitOps
+    job_type: run
+    playbook: playbooks/ping.yml
+    inventory: HMI Demo Kiosks
+    credentials:
+      - kiosk-private-key
+    execution_environment: Default execution environment
+
+  - name: Provision Kiosk Playbook
+    organization: HMI Demo
+    project: AEG GitOps
+    job_type: run
+    playbook: playbooks/provision_kiosk.yml
+    inventory: HMI Demo Kiosks
+    credentials:
+      - kiosk-private-key
+      - rhsm_credential
+      - kiosk_container_extra_params
+    execution_environment: Default execution environment
+
+  - name: Kiosk Mode Playbook
+    organization: HMI Demo
+    project: AEG GitOps
+    job_type: run
+    playbook: playbooks/kiosk_playbook.yml
+    inventory: HMI Demo Kiosks
+    credentials:
+      - kiosk-private-key
+      - rhsm_credential
+    execution_environment: Default execution environment
+
+  - name: Podman Playbook
+    organization: HMI Demo
+    project: AEG GitOps
+    job_type: run
+    playbook: playbooks/podman_playbook.yml
+    inventory: HMI Demo Kiosks
+    credentials:
+      - kiosk-private-key
+      - kiosk_container_extra_params
+    execution_environment: Default execution environment
+
+controller_schedules:
+  - name: Provision Kiosk Playbook
+    organization: HMI Demo
+    unified_job_template: Provision Kiosk Playbook
+    rrule: DTSTART:20191219T130500Z RRULE:FREQ=MINUTELY;INTERVAL=10
+
+controller_credential_input_sources:
+  - source_credential: Hashivault
+    target_credential: kiosk-private-key
+    input_field_name: username
+    metadata:
+      secret_backend: secret
+      secret_path: hub/vm-ssh
+      secret_key: username
+
+  - source_credential: Hashivault
+    target_credential: kiosk-private-key
+    input_field_name: ssh_key_data
+    metadata:
+      secret_backend: secret
+      secret_path: hub/vm-ssh
+      secret_key: privatekey
+
+  - source_credential: Hashivault
+    target_credential: rhsm_credential
+    input_field_name: username
+    metadata:
+      secret_backend: secret
+      secret_path: hub/rhsm
+      secret_key: username
+
+  - source_credential: Hashivault
+    target_credential: rhsm_credential
+    input_field_name: password
+    metadata:
+      secret_backend: secret
+      secret_path: hub/rhsm
+      secret_key: password
+
+  - source_credential: Hashivault
+    target_credential: kiosk_container_extra_params
+    input_field_name: container_extra_params
+    metadata:
+      secret_backend: secret
+      secret_path: hub/kiosk-extra
+      secret_key: container_extra_params
+
+controller_credentials:
+  - name: Hashivault
+    description: In-Cluster Hashicorp vault lookup
+    organization: HMI Demo
+    credential_type: HashiCorp Vault Secret Lookup
+    inputs:
+      url: "{{ secrets['vault_url'] }}"
+      token: "{{ secrets['vault_root_token'] }}"
+      cacert: "{{ secrets['vault_ca'] }}"
+      api_version: v2
+
+  - name: rhsm_credential
+    description: RHSM credential registering RHEL VMs
+    organization: HMI Demo
+    credential_type: RHSMcredential
+
+  - name: kiosk-private-key
+    description: Machine credential for kiosk type machines
+    organization: HMI Demo
+    credential_type: Machine
+
+  - name: kiosk_container_extra_params
+    description: Kiosk Extra container parameters
+    organization: HMI Demo
+    credential_type: KioskExtraParams
+
+controller_launch_jobs: []
+
+controller_execution_environments: []
