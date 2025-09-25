@@ -3,7 +3,21 @@ kind: Pod
 metadata:
   name: debug
 spec:
+  volumes:
   serviceAccountName: aap-controller
+  initContainers:
+    - name: init
+      image: quay.io/rhn_support_mbaldess/ansible-aap-config-container:latest
+      workingDir: /var/aap-git
+      command:
+        - /bin/bash
+        - -c
+        - >
+          git clone --recurse-submodules --single-branch --branch "bandini-aap-test"
+          -- "https://github.com/validatedpatterns-sandbox/vp-frankfurt" /var/aap-git/repo
+      volumeMounts:
+        - name: scratch-space
+          mountPath: /var/aap-git
   containers:
     - name: debug
       image: quay.io/rhn_support_mbaldess/ansible-aap-config-container:latest
@@ -18,6 +32,8 @@ spec:
         - name: aap-admin-password
           mountPath: "/var/aap-admin-password/"
           readOnly: true
+        - name: scratch-space
+          mountPath: "/var/aap-git/"
   volumes:
     - name: helm-values
       configMap:
@@ -28,3 +44,6 @@ spec:
     - name: aap-manifest-volume
       secret:
         secretName: aap-manifest
+    - name: scratch-space
+      emptyDir:
+        sizeLimit: 5Gi
