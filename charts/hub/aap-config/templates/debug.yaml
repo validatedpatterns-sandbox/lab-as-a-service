@@ -3,7 +3,7 @@ kind: Pod
 metadata:
   name: debug
 spec:
-  serviceAccountName: {{ $.Values.serviceAccountName }}
+  serviceAccountName: aap-controller
   containers:
     - name: debug
       image: quay.io/rhn_support_mbaldess/ansible-aap-config-container:latest
@@ -12,7 +12,13 @@ spec:
         - name: aap-manifest-volume
           mountPath: "/var/aap-manifest/"
           readOnly: true
+        - name: aap-admin-password
+          mountPath: "/var/aap-admin-password/"
+          readOnly: true
   volumes:
+    - name: aap-admin-password
+      secret:
+        secretName: aap-admin-password
     - name: aap-manifest-volume
       secret:
         secretName: aap-manifest

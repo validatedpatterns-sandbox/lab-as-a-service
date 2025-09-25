@@ -64,10 +64,9 @@ clusterGroup:
       project: hub
       chart: ansible-automation-platform-instance
       chartVersion: 0.1.*
-
     aap-config:
       name: aap-config
-      namespace: aap-config
+      namespace: ansible-automation-platform
       project: hub
       path: charts/hub/aap-config
   imperative:
