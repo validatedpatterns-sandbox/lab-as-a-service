@@ -1,0 +1,35 @@
+---
+# Sample inventory configuration for AAP Controller
+# This file defines inventories and hosts that will be created in the AAP Controller
+
+controller_inventories:
+  - name: "Demo Inventory"
+    description: "Sample inventory for demonstration purposes"
+    organization: "Default"
+    variables:
+      ansible_connection: local
+      ansible_python_interpreter: "{{ ansible_playbook_python }}"
+
+controller_hosts:
+  - name: "localhost"
+    description: "Local host for running playbooks"
+    inventory: "Demo Inventory"
+    variables:
+      ansible_connection: local
+      ansible_python_interpreter: "{{ ansible_playbook_python }}"
+
+  - name: "demo-host"
+    description: "Sample demo host"
+    inventory: "Demo Inventory"
+    variables:
+      ansible_host: "demo.example.com"
+      ansible_user: "ansible"
+
+controller_groups:
+  - name: "demo_servers"
+    description: "Group for demo servers"
+    inventory: "Demo Inventory"
+    hosts:
+      - "demo-host"
+    variables:
+      group_var_example: "demo_value"

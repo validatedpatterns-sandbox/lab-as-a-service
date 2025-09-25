@@ -5,3 +5,4 @@ collections:
   - name: ansible.controller  # Required for AAP 2.5+ license management
   - name: awx.awx            # Required for legacy AAP/AWX license management
   - name: kubernetes.core    # Required for OpenShift/Kubernetes operations
+  - name: infra.aap_configuration  # Required for AAP configuration management

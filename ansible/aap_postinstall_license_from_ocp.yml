@@ -1,0 +1,74 @@
+---
+# This playbook is meant to postconfigure an AAP installation on OpenShift
+#
+# Prerequisites:
+# - Install required collections: ansible-galaxy collection install -r common/requirements.yml
+# - OpenShift secret 'aap-manifest' containing the AAP license manifest
+# - AAP instance running on OpenShift with accessible route
+#
+# CLI testing
+# oc login -u kubeadmin -p <password> https://api.cluster-qqw7r.qqw7r.sandbox598.opentlc.com:6443
+# ansible-playbook -e @ocp_credentials.yml aap_postinstall_manifest.yaml
+#
+#  ALternative set the K8S_AUTH_KUBECONFIG to the kubeconfig file with access rights to the cluster
+#  export K8S_AUTH_KUBECONFIG=/home/joe/.kube/config
+
+
+- name: AAP Post-Installation Configuration - install manifest file
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    aap_namespace: "aap"
+    aap_app_name: 'example-aap'
+    aap_validate_certs: false
+
+  tasks:
+    - name: Include tasks to figure out AAP Controller route and admin password
+      ansible.builtin.include_tasks:
+        file: aap_get_credentials.yml
+      when:
+        (automation_controller_hostname) is not defined or (aap_password is not defined)
+
+    - name: Retrieve aap-manifest secret from OpenShift
+      kubernetes.core.k8s_info:
+        api_version: v1
+        kind: Secret
+        name: "{{ aap_manifest_secret_name }}"
+        namespace: "{{ aap_manifest_secret_namespace }}"
+      register: aap_manifest_secret
+
+    - name: Fail if aap-manifest secret not found
+      ansible.builtin.fail:
+        msg: "Secret '{{ aap_manifest_secret_name }}' not found in namespace '{{ aap_manifest_secret_namespace }}'"
+      when: aap_manifest_secret.resources | length == 0
+
+    - name: Extract manifest content from secret
+      ansible.builtin.set_fact:
+        manifest_content: "{{ aap_manifest_secret.resources[0].data.manifest | b64decode }}"
+      when: aap_manifest_secret.resources[0].data.manifest is defined
+
+    - name: Create temporary manifest file
+      ansible.builtin.copy:
+        content: "{{ manifest_content }}"
+        dest: /tmp/aap-manifest.zip
+        mode: '0600'
+      when: manifest_content is defined
+
+    - name: Apply AAP license using controller_license role
+      ansible.builtin.include_role:
+        name: infra.aap_configuration.controller_license
+      vars: # noqa: var-naming[no-role-prefix]
+        # aap_hostname: "{{ aap_hostname }}"
+        # aap_password: "{{ aap_password }}"
+        aap_username: 'admin'
+        # aap_validate_certs: false
+        controller_license:
+          manifest_url: "file:///tmp/aap-manifest.zip"
+          force: true
+
+    - name: Clean up temporary manifest file
+      ansible.builtin.file:
+        path: /tmp/aap-manifest.zip
+        state: absent
+      when: manifest_content is defined

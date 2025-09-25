@@ -1,0 +1,88 @@
+---
+# This playbook creates an AAP admin token with write permissions
+# and stores it as a secret in OpenShift for use by other automation
+#
+# Prerequisites:
+# - Install required collections: ansible-galaxy collection install -r common/requirements.yml
+# - AAP instance running on OpenShift with accessible route
+# - Admin credentials available
+
+- name: AAP Post-Installation - Create Admin Token
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    aap_namespace: "aap"
+    aap_app_name: 'example-aap'
+    aap_username: 'admin'
+    aap_validate_certs: false
+    token_name: "aap-config-access-token"
+    token_description: "Admin token for AAP configuration automation"
+    token_scope: "write"
+
+  tasks:
+    - name: Include tasks to figure out AAP route and admin password
+      ansible.builtin.include_tasks:
+        file: aap_get_credentials.yml
+      when:
+        (aap_hostname is not defined) or (aap_password is not defined)
+
+    - name: Create AAP admin token
+      ansible.controller.token:
+        description: "{{ token_description }}"
+        scope: "{{ token_scope }}"
+        controller_host: "https://{{ aap_hostname }}"
+        controller_username: "{{ aap_username }}"
+        controller_password: "{{ aap_password }}"
+        validate_certs: "{{ aap_validate_certs }}"
+        state: present
+      register: aap_admin_token
+
+    - name: Display token creation result
+      ansible.builtin.debug:
+        msg: "AAP admin token created successfully with ID: {{ aap_admin_token.id }}"
+      when: aap_admin_token is succeeded
+
+    - name: Create OpenShift secret with AAP admin token
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Secret
+          metadata:
+            name: aap-config-access
+            namespace: "{{ aap_namespace }}"
+            labels:
+              app.kubernetes.io/name: "{{ aap_app_name }}"
+              app.kubernetes.io/component: "aap-config"
+              created-by: "aap-postinstall"
+          type: Opaque
+          data:
+            token: "{{ aap_admin_token.token | b64encode }}"
+            hostname: "{{ aap_hostname | b64encode }}"
+            username: "{{ aap_username | b64encode }}"
+            validate_certs: "{{ aap_validate_certs | string | b64encode }}"
+      when: aap_admin_token is succeeded
+
+    - name: Verify secret creation
+      kubernetes.core.k8s_info:
+        api_version: v1
+        kind: Secret
+        name: aap-config-access
+        namespace: "{{ aap_namespace }}"
+      register: token_secret
+
+    - name: Display secret creation result
+      ansible.builtin.debug:
+        msg: "AAP config access secret created successfully in namespace {{ aap_namespace }}"
+      when: token_secret.resources | length > 0
+
+    - name: Display usage instructions
+      ansible.builtin.debug:
+        msg:
+          - "AAP admin token has been created and stored in OpenShift secret 'aap-config-access'"
+          - "To use this token in other playbooks:"
+          - "1. Retrieve the secret: kubectl get secret aap-config-access -n {{ aap_namespace }} -o yaml"
+          - "2. Decode the token: echo '<base64_token>' | base64 -d"
+          - "3. Use with AAP modules by setting controller_oauthtoken variable"
+      when: aap_admin_token is succeeded and token_secret.resources | length > 0

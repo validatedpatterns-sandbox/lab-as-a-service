@@ -1,0 +1,50 @@
+---
+# This playbook is meant to postconfigure an AAP installation on OpenShift
+#
+# Prerequisites:
+# - Install required collections: ansible-galaxy collection install -r common/requirements.yml
+# - OpenShift secret 'aap-manifest' containing the AAP license manifest
+# - AAP instance running on OpenShift with accessible route
+#
+# CLI testing
+# oc login -u kubeadmin -p <password> https://api.cluster-qqw7r.qqw7r.sandbox598.opentlc.com:6443
+# ansible-playbook -e @ocp_credentials.yml aap_postinstall_manifest.yaml
+#
+#  ALternative set the K8S_AUTH_KUBECONFIG to the kubeconfig file with access rights to the cluster
+#  export K8S_AUTH_KUBECONFIG=/home/joe/.kube/config
+
+# TODO: Improve playbook with  infra.aap_configuration.contoller_license
+
+- name: AAP Post-Installation Configuration - install manifest file
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    aap_namespace: "aap"
+    aap_app_name: 'example-aap'
+  # vars_prompt:
+  #   - name: redhat_subscription_username
+  #     prompt: 'Red Hat subscription username'
+  #     private: false
+  #   - name: redhat_subscription_password
+  #     prompt: 'Red Hat subscription password'
+  #     private: true
+
+  tasks:
+    - name: Include tasks to figure out AAP Controller route and admin password
+      ansible.builtin.include_tasks:
+        file: aap_get_credentials.yml
+      when:
+        (aap_hostname) is not defined or (aap_password is not defined)
+
+    - name: Apply AAP license using controller_license role
+      ansible.builtin.include_role:
+        name: infra.aap_configuration.controller_license
+      vars: # noqa: var-naming[no-role-prefix]
+        # aap_hostname: "{{ aap_hostname }}"
+        # aap_password: "{{ aap_password }}"
+        aap_username: 'admin'
+        aap_validate_certs: false
+        controller_license:
+          manifest_url: "file:///Users/mkoch/Downloads/tmp/AAPmanifest.zip"
+          force: true
