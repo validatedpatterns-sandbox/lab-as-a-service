@@ -90,6 +90,32 @@
   until: license_controller is not failed
   retries: 5
 
+- name: create a token
+  awx.awx.token:
+    controller_host: "{{ aap_hostname }}"
+    controller_username: "{{ aap_username }}"
+    controller_password: "{{ aap_password }}"
+    validate_certs: false
+    description: "test-k8s-token"
+    state: present
+  register: controller_token
+
+- name: debug3
+  ansible.builtin.debug:
+    msg: "{{ controller_token }}"
+
+- name: store the token as a Kubernetes secret
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        namespace: ansible-automation-platform
+        name: controller-login-token
+      data:
+        token: "{{ controller_token.ansible_facts.controller_token.token | ansible.builtin.b64encode }}"
+
 - name: "Configure AAP - Version 2.5+"
   block:
     - name: "Configure AAP"
