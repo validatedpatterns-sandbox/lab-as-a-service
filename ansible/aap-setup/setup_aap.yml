@@ -83,24 +83,6 @@
   until: license_controller is not failed
   retries: 5
 
-- name: Debug infra.controller_configuration.dispatch common variables
-  ansible.builtin.debug:
-    msg:
-      - "aap_hostname: {{ aap_hostname }}"
-      - "aap_validate_certs: {{ aap_validate_certs }}"
-      - "aap_username: {{ aap_username }}"
-      - "aap_request_timeout: {{ aap_request_timeout }}"
-      - "aap_configuration_async_dir: {{ aap_configuration_async_dir }}"
-  when:
-    - agof_configure_aap_debug
-
-- name: Perform any necessary pre-config fixups
-  when: (perform_pre_config_fixups|bool) is true
-  block:
-    - name: Pre-config fixes
-      ansible.builtin.include_role:
-        name: agof_configure_aap/roles/pre_config_fixups
-
 - name: "Configure AAP - Version 2.5+"
   block:
     - name: "Configure AAP"
