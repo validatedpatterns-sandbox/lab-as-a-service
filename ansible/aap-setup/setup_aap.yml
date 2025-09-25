@@ -1,4 +1,22 @@
 ---
+- name: Read helm values
+  ansible.builtin.include_vars:
+    file: "/var/helm-values/values.yaml"
+
+- name: debug
+  ansible.builtin.debug:
+    msg: "{{ global }}"
+
+- name: Set variables
+  ansible.builtin.set_fact:
+    aap_hostname: "aap-ansible-automation-platform.{{ global.localClusterDomain }}"
+    api_prefix: "api/controller/v2"
+    admin_password: "{{ lookup('file', '/var/aap-admin-password/password') }}"
+
+- name: debug2
+  ansible.builtin.debug:
+    msg: "{{ aap_hostname }}"
+
 - name: Wait for Automation Controller to be up
   ansible.builtin.uri:
     url: "https://{{ aap_hostname }}/{{ api_prefix }}/ping/"
