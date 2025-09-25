@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: debug
+spec:
+  serviceAccountName: {{ $.Values.serviceAccountName }}
+  containers:
+    - image: quay.io/rhn_support_mbaldess/ansible-aap-config-container:latest
+      name: debug
+      command: ["/usr/bin/sleep", "infinity"]
