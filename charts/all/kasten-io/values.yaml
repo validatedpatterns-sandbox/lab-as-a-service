@@ -6,7 +6,7 @@ k10:
   auth:
     # for the moment we use token auth and disable openshift auth
     tokenAuth:
-      enabled: false
+      enabled: true
     # todo figure out how to use {{ .Values.global.localClusterDomain }} here
     #openshift:
     #  dashboardURL: https://k10-route-kasten-io.apps.se-lab-aro-prod.dev.azure.kasten.io/k10/
