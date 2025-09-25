@@ -39,7 +39,7 @@ spec:
             - name: NEXUS_SEARCH_INDEX_REBUILD_ON_STARTUP
               value: {{ .Values.env.nexus_serch_index }}
             - name: INSTALL4J_ADD_VM_PARAMS
-              value: {{ .Values.env.vmparams }}
+              value: {{ .Values.env.vm_params }}
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}
