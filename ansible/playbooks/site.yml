@@ -1,0 +1,5 @@
+---
+- import_playbook: ./provision_aws.yml
+- import_playbook: ./configure_dns.yml
+- import_playbook: ./install_idm.yml
+- import_playbook: ./idm_users.yml

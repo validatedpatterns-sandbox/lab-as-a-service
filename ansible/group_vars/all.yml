@@ -1,0 +1,51 @@
+---
+# AWS
+aws_region: eu-central-1
+instance_name: idm-node
+instance_type: t2.large
+instance_ebs_size: 20
+key_name: idm-key
+create_keypair: false
+ssh_public_key_path: ~/.ssh/id_bastion.pub
+ssh_public_key: "{{ lookup('file', ssh_public_key_path) }}"
+
+ec2_tags: "idm-lab"
+ec2_role: "idm"
+
+# AMI (RHEL 9)
+rhel_ami_owner: "309956199498"
+
+# Networking
+vpc_security_group_name: idm-sg
+allow_cidrs:
+- 0.0.0.0/0
+
+# Route53
+hosted_zone: aws.validatedpatterns.io.
+record_name: idm-lab
+fqdn: "{{ record_name }}.{{ hosted_zone | regex_replace('\n$','') }}"
+fqdn_nodot: "{{ record_name }}.{{ hosted_zone | regex_replace('\n$','') | regex_replace('\\.$','') }}"
+
+#IPA server settings
+ipa_zone: aws.validatedpatterns.io
+ipaserver_hostname: "{{ fqdn_nodot }}"
+ipaserver_no_host_dns: true
+ipaserver_setup_dns: false
+ipaserver_setup_adtrust: false
+ipaserver_setup_kra: false
+ipaserver_netbios_name: VPLAB
+ipaserver_domain: "{{ ipa_zone }}"
+ipaserver_realm: "{{ ipa_zone }}"
+ipaserver_setup_dns: no
+ipa_pw: "R3dH4t1!"
+ipaadmin_password: "{{ ipa_pw }}"
+ipadm_password: "{{ ipa_pw }}"
+
+#IDM user/group config
+idm:
+  users:
+  - name: jonny
+    first: jonny
+    last: rickard
+  - name: bandini
+    first: alejandro

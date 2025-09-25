@@ -1,0 +1,110 @@
+---
+- name: Provision EC2 with public IP
+  hosts: localhost
+  gather_facts: false
+  collections:
+  - amazon.aws
+  - community.aws
+  vars:
+    wait_for_ssh_timeout: 600
+  tasks:
+  - name: Import your existing public SSH key into AWS
+    amazon.aws.ec2_key:
+      name: "{{ key_name }}"
+      region: "{{ aws_region }}"
+      key_material: "{{ lookup('file', ssh_public_key_path) }}"
+      state: present    
+
+  - name: Ensure security group exists
+    amazon.aws.ec2_group:
+      name: "{{ vpc_security_group_name }}"
+      description: "bastion security group"
+      region: "{{ aws_region }}"
+      rules:
+        - proto: tcp
+          from_port: 22
+          to_port: 22
+          cidr_ip: "{{ allow_cidrs }}"
+        - proto: tcp
+          from_port: 80
+          to_port: 80
+          cidr_ip: "{{ allow_cidrs }}"
+        - proto: tcp
+          from_port: 443
+          to_port: 443
+          cidr_ip: "{{ allow_cidrs }}"
+    register: sg
+
+  - name: Lookup latest RHEL 9 AMI
+    amazon.aws.ec2_ami_info:
+      owners: ["{{ rhel_ami_owner }}"]
+      region: "{{ aws_region }}"
+      filters:
+        name: "RHEL-9*"
+        architecture: x86_64
+        root-device-type: ebs
+        virtualization-type: hvm
+    register: rhel_amis
+
+  - name: Print AMIs
+    ansible.builtin.debug:
+      msg: "{{ rhel_amis }}"
+
+  - name: Get newest AMI ID
+    ansible.builtin.set_fact:
+      ami_id: "{{ (rhel_amis.images | sort(attribute='creation_date')) | last | default({}) | dict2items | selectattr('key','equalto','image_id') | map(attribute='value') | first }}"
+
+  - name: Launch EC2 instance
+    amazon.aws.ec2_instance:
+      name: "{{ instance_name }}"
+      region: "{{ aws_region }}"
+      key_name: "{{ key_name }}"
+      instance_type: "{{ instance_type }}"
+      image_id: "{{ ami_id }}"
+      security_group: "{{ vpc_security_group_name }}"
+      network:
+        assign_public_ip: true
+      tags:
+        Project: "{{ ec2_tags }}"
+        Role: "{{ ec2_role }}"
+      volumes:
+        - device_name: /dev/sda1
+          ebs:
+            volume_size: "{{ instance_ebs_size }}"
+            volume_type: gp3
+            delete_on_termination: true
+      wait: true
+    register: ec2
+
+  - name: Set instance facts
+    ansible.builtin.set_fact:
+      idm_public_ip: "{{ ec2.instances[0].public_ip_address }}"
+      idm_private_ip: "{{ ec2.instances[0].private_ip_address }}"
+      idm_instance_id: "{{ ec2.instances[0].instance_id }}"
+
+  - name: Show instance details
+    ansible.builtin.debug:
+      msg:
+        public_ip: "{{ idm_public_ip }}"
+        private_ip: "{{ idm_private_ip }}"
+        instance_id: "{{ idm_instance_id }}"
+
+  - name: Wait for SSH to be available
+    ansible.builtin.wait_for:
+      host: "{{ idm_public_ip }}"
+      port: 22
+      timeout: "{{ wait_for_ssh_timeout }}"
+      state: started
+
+  - name: Fetch host key via ssh-keyscan ip
+    ansible.builtin.command: "ssh-keyscan -H {{ idm_public_ip }}"
+    register: scanned_ip
+    changed_when: false
+  
+  - name: Add new host to in-memory inventory
+    ansible.builtin.add_host:
+      name: "{{ fqdn_nodot }}"
+      ansible_host: "{{ idm_public_ip }}"
+      groups: ["ipaservers"]
+      ansible_user: ec2-user
+      key: "{{ scanned_ip.stdout }}"

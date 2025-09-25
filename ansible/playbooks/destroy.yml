@@ -1,0 +1,28 @@
+---
+- name: Teardown EC2 and DNS
+  hosts: localhost
+  gather_facts: false
+  tasks:
+  - name: Remove Route53 record
+    amazon.aws.route53:
+      zone: "{{ hosted_zone }}"
+      record: "{{ record_name }}.{{ hosted_zone }}"
+      type: A
+      state: absent
+    ignore_errors: true
+
+  - name: Terminate instance by tag
+    amazon.aws.ec2_instance:
+      filters:
+        tag:Project: "{{ ec2_tags }}"
+        tag:Role: "{{ ec2_role }}"
+      state: terminated
+      region: "{{ aws_region }}"
+    ignore_errors: true
+
+  - name: Remove security group (ignore if attached)
+    amazon.aws.ec2_group:
+      name: "{{ vpc_security_group_name }}"
+      state: absent
+      region: "{{ aws_region }}"
+    ignore_errors: true

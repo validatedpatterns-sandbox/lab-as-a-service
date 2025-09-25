@@ -1,0 +1,64 @@
+---
+- name: Prepare for IDM on the provisioned host
+  hosts: ipaserver
+  become: true
+  gather_facts: yes
+  tasks:
+    - name: Set hostname
+      ansible.builtin.hostname:
+        name: "{{ fqdn_nodot }}"
+
+    - name: Prevent cloud-init from overwriting hostname
+      ansible.builtin.copy:
+        dest: /etc/cloud/cloud.cfg.d/99_hostname.cfg
+        content: |
+          preserve_hostname: true
+
+    - name: Add {{ fqdn }} to /etc/hosts
+      ansible.builtin.lineinfile:
+        path: /etc/hosts
+        line: "{{ ansible_default_ipv4.address }} {{ fqdn_nodot }}" 
+
+    - name: Ensure base packages
+      ansible.builtin.dnf:
+        name:
+        - vim
+        - git
+        - ipa-server
+        - firewalld
+        state: present
+        update_cache: yes
+
+    - name: Start & enable firewalld
+      ansible.builtin.systemd_service:
+        name: firewalld
+        state: started
+        enabled: yes
+
+    - name: Open firewall for HTTP/HTTPS
+      ansible.posix.firewalld:
+        port: "{{ item }}"
+        permanent: true
+        state: enabled
+        immediate: true
+      loop:
+      - 22/tcp
+      - 80/tcp
+      - 443/tcp
+      - 464/tcp
+      - 464/udp
+      - 389/tcp
+      - 636/tcp
+      - 88/tcp
+      - 88/udp
+
+
+    - name: Check for ipaconfig before installing ipaserver
+      ansible.builtin.stat:
+        path: /etc/ipa/default.conf
+      register: ipaconf
+
+    - name: Install IDM 
+      command: |
+        ipa-server-install -U -r {{ ipa_zone|upper }} -n {{ ipa_zone }} -a {{ ipa_pw }} -p {{ ipa_pw }} --no-host-dns --netbios-name {{ ipaserver_netbios_name }}
+      when: not ipaconf.stat.exists

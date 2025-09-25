@@ -1,0 +1,149 @@
+---
+- name: Install AAP on the provisioned host
+  hosts: aap_node
+  become: true
+  gather_facts: yes
+  tasks:
+    - name: Set hostname
+      ansible.builtin.hostname:
+        name: "{{ fqdn_nodot }}"
+
+    - name: Prevent cloud-init from overwriting hostname
+      ansible.builtin.copy:
+        dest: /etc/cloud/cloud.cfg.d/99_hostname.cfg
+        content: |
+          preserve_hostname: true
+
+    - name: Ensure hostname resolves locally
+      ansible.builtin.lineinfile:
+        path: /etc/hosts
+        regexp: '^127\.0\.0\.1'
+        line: "127.0.0.1   {{ ansible_hostname }} {{ inventory_hostname }} {{ fqdn_nodot }}"
+
+    - name: Ensure base packages
+      ansible.builtin.dnf:
+        name:
+        - tar
+        - unzip
+        - git
+        - firewalld
+        - ansible-core
+        - rsync
+        - sudo
+        state: present
+        update_cache: yes
+
+    - name: Start & enable firewalld
+      ansible.builtin.systemd_service:
+        name: firewalld
+        state: started
+        enabled: yes
+
+    - name: Open firewall for HTTP/HTTPS
+      ansible.posix.firewalld:
+        port: "{{ item }}"
+        permanent: true
+        state: enabled
+        immediate: true
+      loop:
+      - 22/tcp
+      - 80/tcp
+      - 443/tcp
+
+    - name: "Manage user for AAP installer"
+      ansible.builtin.user:
+        name: '{{ containerized_installer_user }}'
+        comment: 'AAP User'
+        create_home: true
+        home: '{{ containerized_installer_user_home }}'
+
+    - name: "Enable sudo for AAP installer user"
+      ansible.builtin.lineinfile:
+        path: "/etc/sudoers.d/{{ containerized_installer_user }}"
+        line: "{{ containerized_installer_user }} ALL=(ALL) NOPASSWD: ALL"
+        owner: root
+        group: root
+        mode: '0444'
+        create: true
+
+    - name: "Enable sudo for AAP installer user"
+      ansible.builtin.lineinfile:
+        path: "{{ containerized_installer_user_home }}/.bashrc"
+        line: 'export XDG_RUNTIME_DIR=/run/user/$EUID'
+
+    - name: "Install pubkey for AAP Installer user"
+      ansible.posix.authorized_key:
+        user: "{{ containerized_installer_user }}"
+        key: "{{ ssh_public_key }}"
+
+    - name: "Enable linger for AAP installer user"
+      ansible.builtin.command: |-
+        loginctl enable-linger "{{ containerized_installer_user }}"
+
+    - name: Run AAP Containerized installer
+      block:
+        - name: Download containerized installer
+          ansible.builtin.include_role:
+            name: infra.aap_utilities.aap_setup_download
+          vars:
+            aap_setup_down_offline_token: "{{ offline_token }}"
+            aap_setup_down_version: "{{ containerized_installer_version }}"
+            aap_setup_down_type: containerized-setup
+            aap_setup_down_dest_dir: "{{ containerized_installer_user_home }}"
+            aap_setup_containerized: true
+
+        - name: Extract containerized installer
+          ansible.builtin.unarchive:
+            src: "{{ aap_setup_down_installer_file }}"
+            dest: "{{ containerized_installer_user_home }}"
+            owner: "{{ containerized_installer_user }}"
+            group: "{{ containerized_installer_user }}"
+            remote_src: true
+
+        - name: Determine install directory
+          ansible.builtin.find:
+            paths: "{{ containerized_installer_user_home }}"
+            file_type: directory
+            use_regex: true
+            patterns:
+              - 'ansible-automation-platform-containerized-setup'
+          register: aap_directories
+
+        - name: Set directory fact
+          ansible.builtin.set_fact:
+            aap_installer_dir: "{{ (aap_directories.files | sort(attribute='mtime', reverse=true) | first).path }}"
+
+        - name: Determine controller_fqdn from inside the user environment
+          ansible.builtin.command: |-
+            hostname -f
+          register: local_hostname
+
+        - name: Set controller_fqdn to local hostname
+          ansible.builtin.set_fact:
+            controller_fqdn: "{{ local_hostname.stdout | trim }}"
+
+        - name: Template inventory file
+          ansible.builtin.template:
+            src: ../templates/containerized_install_inventory.j2
+            dest: "{{ aap_installer_dir }}/inventory"
+            owner: "{{ containerized_installer_user }}"
+            group: "{{ containerized_installer_user }}"
+            mode: "0600"
+
+        - name: Copy manifest
+          ansible.builtin.copy:
+            content: "{{ manifest_content | b64decode }}"
+            dest: "{{ controller_license_file }}"
+            owner: "{{ containerized_installer_user }}"
+            group: "{{ containerized_installer_user }}"
+            mode: "0600"
+
+        - name: Run containerized installer
+          ansible.builtin.command:
+            chdir: "{{ aap_installer_dir }}"
+            cmd: |-
+              ansible-playbook -i inventory ansible.containerized_installer.install
+          become: true
+          become_user: "{{ containerized_installer_user }}"
+          async: 3600
+          poll: 15

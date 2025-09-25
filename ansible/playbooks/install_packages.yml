@@ -1,0 +1,39 @@
+---
+- name: Install AAP on the provisioned host
+  hosts: bastion
+  become: true
+  gather_facts: yes
+  tasks:
+    - name: Set hostname
+      ansible.builtin.hostname:
+        name: "{{ fqdn_nodot }}"
+
+    - name: Prevent cloud-init from overwriting hostname
+      ansible.builtin.copy:
+        dest: /etc/cloud/cloud.cfg.d/99_hostname.cfg
+        content: |
+          preserve_hostname: true
+
+    - name: Ensure base packages
+      ansible.builtin.dnf:
+        name:
+        - tar
+        - unzip
+        - git
+        - ansible-core
+        state: present
+        update_cache: yes
+
+    - name: install oc client
+      ansible.builtin.unarchive:
+        src: "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/stable-4.19/openshift-client-linux-4.19.12.tar.gz"
+        dest: /usr/local/bin
+        mode: 0755
+        remote_src: true
+
+    - name: install helm client
+      ansible.builtin.unarchive:
+        src: "https://get.helm.sh/helm-v3.19.0-linux-amd64.tar.gz"
+        dest: /usr/local/bin
+        mode: 0755
+        remote_src: true

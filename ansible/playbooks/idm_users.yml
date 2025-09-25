@@ -1,0 +1,17 @@
+- name: configure users and groups
+  hosts: ipaserver
+  become: true
+  gather_facts: false
+  collections:
+  - freeipa.ansible_freeipa
+  tasks:
+    - name: Create IDM users
+      freeipa.ansible_freeipa.ipauser:
+        ipaadmin_password: "{{ ipa_pw }}"
+        name: "{{ item.name }}"
+        first: "{{ item.first }}"
+        last: "{{ item.last }}"
+        state: present
+        random: true
+        update_password: on_create
+      loop: "{{ idm.users }}"
