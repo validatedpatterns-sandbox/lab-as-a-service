@@ -1,0 +1,21 @@
+{{- if .Values.k10VolumeSnapshotClasses.annotate }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "kasten-io.fullname" . }}-vsc-annotator
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-15"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+  labels:
+    {{- include "kasten-io.labels" . | nindent 4 }}
+    app.kubernetes.io/component: vsc-annotator
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ include "kasten-io.fullname" . }}-vsc-annotator
+subjects:
+- kind: ServiceAccount
+  name: {{ include "kasten-io.fullname" . }}-vsc-annotator
+  namespace: {{ .Release.Namespace }}
+{{- end }}

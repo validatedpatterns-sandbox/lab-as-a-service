@@ -1,0 +1,47 @@
+{{- if .Values.k10VolumeSnapshotClasses.annotate }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "kasten-io.fullname" . }}-vsc-annotator
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-10"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+  labels:
+    {{- include "kasten-io.labels" . | nindent 4 }}
+    app.kubernetes.io/component: vsc-annotator
+spec:
+  template:
+    metadata:
+      labels:
+        {{- include "kasten-io.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: vsc-annotator
+    spec:
+      serviceAccountName: {{ include "kasten-io.fullname" . }}-vsc-annotator
+      restartPolicy: Never
+      containers:
+      - name: vsc-annotator
+        image: bitnami/kubectl:latest
+        command:
+        - /bin/sh
+        - -c
+        - |
+          set -e
+          echo "Starting VolumeSnapshotClass annotation job..."
+          
+          {{- range .Values.k10VolumeSnapshotClasses.names }}
+          echo "Checking if VolumeSnapshotClass {{ . }} exists..."
+          if kubectl get volumesnapshotclass {{ . }} >/dev/null 2>&1; then
+            echo "Annotating VolumeSnapshotClass {{ . }} for Kasten..."
+            kubectl annotate volumesnapshotclass {{ . }} \
+              k10.kasten.io/is-snapshot-class=true \
+              --overwrite
+            echo "Successfully annotated {{ . }}"
+          else
+            echo "Warning: VolumeSnapshotClass {{ . }} not found, skipping..."
+          fi
+          {{- end }}
+          
+          echo "VolumeSnapshotClass annotation job completed."
+{{- end }}

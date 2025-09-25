@@ -1,3 +1,12 @@
+# Configuration for annotating VolumeSnapshotClasses
+k10VolumeSnapshotClasses:
+  # List of VolumeSnapshotClass names to annotate for Kasten
+  names:
+    - csi-aws-vsc
+  # Whether to enable the annotation job
+  annotate: true
+
+# native k10 values must be under the 'k10' key
 k10:
   
   scc:
