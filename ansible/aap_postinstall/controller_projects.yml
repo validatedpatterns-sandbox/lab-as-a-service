@@ -16,11 +16,11 @@ controller_projects:
     allow_override: false
     timeout: 0
 
-  - name: "Validated Patterns Projec VP-Frankfurt"
+  - name: "Validated Patterns Project"
     description: "Project for validated patterns automation"
     organization: "Default"
     scm_type: git
-    scm_url: "https://github.com/validatedpatterns-sandbox/vp-frankfurt.git"
+    scm_url: "https://github.com/validatedpatterns/common.git"
     scm_branch: "main"
     scm_clean: true
     scm_delete_on_update: false

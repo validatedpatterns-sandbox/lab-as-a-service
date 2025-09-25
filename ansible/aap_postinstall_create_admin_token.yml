@@ -7,6 +7,8 @@
 # - AAP instance running on OpenShift with accessible route
 # - Admin credentials available
 
+# Only creates controller oauth token, none for genric admin in AAP
+
 - name: AAP Post-Installation - Create Admin Token
   hosts: localhost
   connection: local
@@ -40,9 +42,12 @@
 
     - name: Display token creation result
       ansible.builtin.debug:
-        msg: "AAP admin token created successfully with ID: {{ aap_admin_token.id }}"
+        msg:
+          - "AAP admin token created successfully with ID: {{ aap_admin_token.id }}"
+          - "Token: {{ aap_admin_token.ansible_facts.controller_token.token }}"
       when: aap_admin_token is succeeded
 
+    # TODO: Update according to required token structure
     - name: Create OpenShift secret with AAP admin token
       kubernetes.core.k8s:
         state: present
@@ -58,7 +63,7 @@
               created-by: "aap-postinstall"
           type: Opaque
           data:
-            token: "{{ aap_admin_token.token | b64encode }}"
+            token: "{{ aap_admin_token.ansible_facts.controller_token.token | b64encode }}"
             hostname: "{{ aap_hostname | b64encode }}"
             username: "{{ aap_username | b64encode }}"
             validate_certs: "{{ aap_validate_certs | string | b64encode }}"

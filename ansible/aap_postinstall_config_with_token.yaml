@@ -1,0 +1,42 @@
+---
+# This playbook configures AAP using token-based authentication
+# It uses the token created by aap_postinstall_create_admin_token.yml
+#
+# Prerequisites:
+# - Install required collections: ansible-galaxy collection install -r common/requirements.yml
+# - AAP admin token secret created (run aap_postinstall_create_admin_token.yml first)
+# - AAP instance running on OpenShift with accessible route
+
+- name: AAP Post-Installation Configuration - configure AAP components with token
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    aap_namespace: "aap"
+    aap_app_name: 'example-aap'
+    controller_postinstall_dir: './aap_postinstall'
+    controller_postinstall_ignore_files: './aap_postinstall/ignore_files'
+
+  tasks:
+    - name: Include tasks to get AAP token from secret
+      ansible.builtin.include_tasks:
+        file: aap_get_token_from_secret.yml
+
+    - name: Include vars for automation controller
+      ansible.builtin.include_vars:
+        dir: '{{ controller_postinstall_dir }}'
+        extensions:
+          - yml
+          - yaml
+        ignore_files: '{{ controller_postinstall_ignore_files }}'
+        ignore_unknown_extensions: true
+
+    - name: Execute automation controller resource configuration
+      ansible.builtin.include_role:
+        name: infra.aap_configuration.dispatch
+      vars: # noqa: var-naming[no-role-prefix]
+        controller_hostname: "https://{{ aap_hostname }}"
+        controller_oauthtoken: "{{ aap_admin_token }}"
+        controller_validate_certs: "{{ aap_validate_certs }}"
+        controller_configuration_async_delay: '{{ controller_postinstall_async_delay | default(10) }}'
+        controller_configuration_async_retries: '{{ controller_postinstall_async_retries | default(3) }}'
