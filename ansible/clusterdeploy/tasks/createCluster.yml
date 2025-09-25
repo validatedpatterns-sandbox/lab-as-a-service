@@ -34,8 +34,7 @@
         namespace: "{{ cluster.namespace }}"
       type: kubernetes.io/dockerconfigjson
       data:
-        .dockerconfigjson: "{{ lookup('file', '~/.pullsecret.json') | b64encode }}"
-
+        .dockerconfigjson: "{{ cluster.pullSecret }}"
 - name: Create AWS credentials secret
   kubernetes.core.k8s:
     state: present
