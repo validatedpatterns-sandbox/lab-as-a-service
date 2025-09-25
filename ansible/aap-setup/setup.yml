@@ -1,0 +1,6 @@
+---
+- hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: import aap setup tasks
+      ansible.builtin.import_tasks: setup_aap.yml
