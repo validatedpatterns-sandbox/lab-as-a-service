@@ -10,12 +10,14 @@ clusterGroup:
     - config-demo
     - hello-world
     - golang-external-secrets
+    - kasten-io
   # The only subscription on spokes is gitops which gets managed by ACM
   # subscriptions:
   projects:
     - eso
     - config-demo
     - hello-world
+    - kasten-io
   applications:
     golang-external-secrets:
       name: golang-external-secrets
@@ -33,6 +35,12 @@ clusterGroup:
       namespace: hello-world
       project: hello-world
       path: charts/all/hello-world
+    kasten-io:
+      name: k10
+      namespace: kasten-io
+      project: kasten-io
+      path: charts/all/kasten-io
+    
   imperative:
     # NOTE: We *must* use lists and not hashes. As hashes lose ordering once parsed by helm
     # The default schedule is every 10 minutes: imperative.schedule
