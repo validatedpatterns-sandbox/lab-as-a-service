@@ -133,5 +133,5 @@ tolerations: []
 
 affinity: {}
 env:
-  nexus_serch_index: true
+  nexus_serch_index: "true"
   vm_params: "-Xms1g -Xmx2g -XX:MaxDirectMemorySize=2g -Djava.util.prefs.userRoot=${NEXUS_DATA}/javaprefs"
