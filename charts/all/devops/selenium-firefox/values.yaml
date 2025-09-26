@@ -1,19 +1,16 @@
-# Default values for selenium-firefox.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
-
-# This will set the replicaset count more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/
-replicaCount: 1
-
-# This sets the container image more information can be found here: https://kubernetes.io/docs/concepts/containers/images/
+name: selenium-node-firefox
+replicaCount: 2
 image:
-  repository: nginx
-  # This sets the pull policy for images.
+  repository: quay.io/validatedpatterns/selenium-node-firefox
   pullPolicy: IfNotPresent
-  # Overrides the image tag whose default is the chart appVersion.
-  tag: ""
+  tag: 141.0-20250828
+volumeMount:
+  name: dshm
+  path: /dev/shm
+volume:
+  name: dshm
+browser: firefox
 
-# This is for the secrets for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
 imagePullSecrets: []
 # This is to override the chart name.
 nameOverride: ""
@@ -21,42 +18,29 @@ fullnameOverride: ""
 
 # This section builds out the service account more information can be found here: https://kubernetes.io/docs/concepts/security/service-accounts/
 serviceAccount:
-  # Specifies whether a service account should be created
+  name: toolstack-sa
   create: true
-  # Automatically mount a ServiceAccount's API credentials?
   automount: true
-  # Annotations to add to the service account
   annotations: {}
-  # The name of the service account to use.
-  # If not set and create is true, a name is generated using the fullname template
-  name: ""
-
-# This is for setting Kubernetes Annotations to a Pod.
-# For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
 podAnnotations: {}
-# This is for setting Kubernetes Labels to a Pod.
-# For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
 podLabels: {}
-
 podSecurityContext: {}
-  # fsGroup: 2000
-
-securityContext: {}
-  # capabilities:
-  #   drop:
-  #   - ALL
-  # readOnlyRootFilesystem: true
-  # runAsNonRoot: true
-  # runAsUser: 1000
-
-# This is for setting up a service more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/
+securityContext:
+  value: 200
+container:
+  port1: 4444
+  protocol: TCP
+  port2: 5555
 service:
-  # This sets the service type more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
   type: ClusterIP
-  # This sets the ports more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports
-  port: 80
-
-# This block is for setting up the ingress for more information can be found here: https://kubernetes.io/docs/concepts/services-networking/ingress/
+  targetPort1: 4444
+  port1: 4444
+  protocol: TCP
+  name1: node-port-grid
+  targetPort2: 5555
+  port2: 5555
+  protocol: TCP
+  name2: node-port
 ingress:
   enabled: false
   className: ""
@@ -76,6 +60,13 @@ ingress:
 # -- Expose the service via gateway-api HTTPRoute
 # Requires Gateway API resources and suitable controller installed within the cluster
 # (see: https://gateway-api.sigs.k8s.io/guides/)
+env:
+  event_bus_host: selenium-hub
+  event_bus_publish_port: 4442
+  event_bus_subscribe_port: 4443
+  node_grid_url: selenium-hub:4444
+  log4j_lookup: true
+
 httpRoute:
   # HTTPRoute enabled.
   enabled: false
@@ -111,19 +102,11 @@ httpRoute:
   #     - name: version
   #       value: v2
 
-resources: {}
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  # limits:
-  #   cpu: 100m
-  #   memory: 128Mi
-  # requests:
-  #   cpu: 100m
-  #   memory: 128Mi
-
-# This is to setup the liveness and readiness probes more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+resources: 
+  cpu_request: 0.25
+  cpu_limit: 0.5
+  memory_request: 1024Mi
+  memory_limit: 1024Mi
 livenessProbe:
   httpGet:
     path: /

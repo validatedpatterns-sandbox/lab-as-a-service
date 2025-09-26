@@ -1,15 +1,20 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "selenium-chrome.fullname" . }}
+  name: {{ .Values.name }}
   labels:
-    {{- include "selenium-chrome.labels" . | nindent 4 }}
+    app: {{ .Values.name }}
 spec:
   type: {{ .Values.service.type }}
   ports:
-    - port: {{ .Values.service.port }}
-      targetPort: http
-      protocol: TCP
-      name: http
+    - port: {{ .Values.service.port1 }}
+      targetPort: {{ .Values.service.targetPort1 }}
+      protocol: {{ .Values.service.protocol }}
+      name: {{ .Values.service.port1.name1 }}
+    - port: {{ .Values.service.port2 }}
+      targetPort: {{ .Values.service.targertPort2 }}
+      protocol: {{ .Values.service.protocol }}
+      name: {{ .Values.service.port2.name2 }}
   selector:
-    {{- include "selenium-chrome.selectorLabels" . | nindent 4 }}
+    app: {{ .Values.name }}
+    browser: {{ .Values.browser }}
