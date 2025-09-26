@@ -1,0 +1,11 @@
+---
+apiVersion: cluster.open-cluster-management.io/v1
+kind: ManagedCluster
+metadata:
+  name: "{{ cluster.name }}"
+  labels:
+    cloud: "{{ cluster.cloud.provider }}"
+    vendor: OpenShift
+    clusterGroup: "{{ cluster.clusterGroup }}"
+spec:
+  hubAcceptsClient: true

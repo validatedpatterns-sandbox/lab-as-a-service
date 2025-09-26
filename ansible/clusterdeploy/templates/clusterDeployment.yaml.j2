@@ -12,7 +12,7 @@ spec:
     aws:
       region: {{ cluster.region }}
       credentialsSecretRef:
-        name: {{ cluster.name }}-{{ cluster.cloud.provider }}-credentials
+        name: {{ cluster.name }}-{{ cluster.cloud.provider |lower }}-credentials
   provisioning:
     installConfigSecretRef:
       name: {{ cluster.name }}-install-config
