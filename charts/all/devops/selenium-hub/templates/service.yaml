@@ -1,15 +1,28 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "selenium-hub.fullname" . }}
+  name: {{ .Values.name }}
   labels:
-    {{- include "selenium-hub.labels" . | nindent 4 }}
+    app: {{ .Values.name }}
 spec:
   type: {{ .Values.service.type }}
   ports:
-    - port: {{ .Values.service.port }}
-      targetPort: http
-      protocol: TCP
-      name: http
+    - port: {{ .Values.service.port1 }}
+      targetPort: {{ .Values.service.targetPort1 }}
+      protocol: {{ .Values.service.protocol }}
+      name: {{ .Values.service.port1.name1 }}
+    - port: {{ .Values.service.port2 }}
+      targetPort: {{ .Values.service.targertPort2 }}
+      protocol: {{ .Values.service.protocol }}
+      name: {{ .Values.service.port2.name2 }}
+    - port: {{ .Values.service.port3 }}
+      targetPort: {{ .Values.service.targetPort3 }}
+      protocol: {{ .Values.service.protocol }}
+      name: {{ .Values.service.port3.name3 }}
+    - port: {{ .Values.service.port4 }}
+      targetPort: {{ .Values.service.targetPort4 }}
+      protocol: {{ .Values.service.protocol }}
+      name: {{ .Values.service.port4.name4 }}
   selector:
-    {{- include "selenium-hub.selectorLabels" . | nindent 4 }}
+    app: {{ .Values.name }}
+  sessionAddinity: None
