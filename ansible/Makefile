@@ -13,7 +13,7 @@ default: help
 
 .PHONY: install
 install: ## Run playbook
-	ansible-playbook site.yml
+	ansible-playbook site.yaml
 
 .PHONY: destroy
 destroy: ## Post-install tasks
