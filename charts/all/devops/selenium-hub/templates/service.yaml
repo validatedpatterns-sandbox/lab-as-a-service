@@ -25,4 +25,4 @@ spec:
       name: {{ .Values.service.port4.name4 }}
   selector:
     app: {{ .Values.name }}
-  sessionAddinity: None
+  sessionAffinity: None

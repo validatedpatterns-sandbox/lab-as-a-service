@@ -13,5 +13,5 @@ spec:
       name: {{ .Values.service.port }}-tcp
   selector:
     app: {{ .Values.name }}
-  sessionAddinity: None
+  sessionAffinity: None
 
