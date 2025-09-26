@@ -46,6 +46,60 @@
     state: present
     definition: "{{ lookup('template', 'clusterDeployment.yaml.j2') | from_yaml }}"
 
+- name: Wait 60 Seconds before moving on
+  ansible.builtin.pause:
+    seconds: 60
+
+- name: Get cluster deployment object to find the kubeconfig secret name
+  kubernetes.core.k8s_info:
+    api_version: hive.openshift.io/v1
+    kind: ClusterDeployment
+    name: "{{ cluster.name }}"
+    namespace: "{{ cluster.namespace }}"
+  register: cluster_deployment
+
+- name: Define the secret name as a fact for later use
+  ansible.builtin.set_fact:
+    admin_secret_name: "{{ cluster_deployment.resources[0].spec.clusterMetadata.adminKubeconfigSecretRef.name }}"
+  
+- name: Get the secret containing the kubeconfig
+  kubernetes.core.k8s_info:
+    api_version: v1
+    kind: Secret
+    name: "{{ admin_secret_name }}"
+    namespace: "{{ cluster.namespace }}"
+  register: admin_secret_info
+
+- name: Decode and save kubeconfig to file
+  ansible.builtin.copy:
+    content: "{{ admin_secret_info.resources[0].data.kubeconfig | b64decode }}"
+    dest: ./kubeconfig
+    mode: '0600'
+
+- name: Create an import secret using the kubeconfig
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: auto-import-secret
+        namespace: "{{ cluster.namespace }}"
+      type: Opaque
+      data:
+        kubeconfig: "{{ lookup('file', './kubeconfig') | b64encode }}"
+  register: auto_import_secret
+
+- name: Create managecluster resource
+  kubernetes.core.k8s:
+    state: present
+    definition: "{{ lookup('template', 'managedCluster.yaml.j2') | from_yaml }}"
+
+- name: Create klusterletAddOnConfig
+  kubernetes.core.k8s:
+    state: present
+    definition: "{{ lookup('template', 'klusterletAddOnConfig.yaml.j2') | from_yaml }}"
+        
 #- name: Create machinePool resources
 #  kubernetes.core.k8s:
 #    state: present
