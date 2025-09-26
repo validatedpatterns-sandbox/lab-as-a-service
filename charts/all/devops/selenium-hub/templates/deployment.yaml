@@ -1,78 +1,45 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "selenium-hub.fullname" . }}
-  labels:
-    {{- include "selenium-hub.labels" . | nindent 4 }}
+  name: {{ .Values.name }}
+  labels: 
+    app: {{ .Values.name }}
 spec:
-  {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
-  {{- end }}
   selector:
     matchLabels:
-      {{- include "selenium-hub.selectorLabels" . | nindent 6 }}
+      app: {{ .Values.name }}
   template:
     metadata:
-      {{- with .Values.podAnnotations }}
-      annotations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
       labels:
-        {{- include "selenium-hub.labels" . | nindent 8 }}
-        {{- with .Values.podLabels }}
-        {{- toYaml . | nindent 8 }}
-        {{- end }}
+        app: {{ .Values.name }}
     spec:
-      {{- with .Values.imagePullSecrets }}
-      imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      serviceAccountName: {{ include "selenium-hub.serviceAccountName" . }}
-      {{- with .Values.podSecurityContext }}
-      securityContext:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
       containers:
-        - name: {{ .Chart.Name }}
-          {{- with .Values.securityContext }}
+        - image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+          name: {{ .Values.name }}
           securityContext:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+            runAsUser: {{ .Values.securityContext.value }}        
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: LOG4J_FORMAT_MSG_NO_LOOKUPS
+              value: {{ .Values.env.nexus_serch_index }}
+            - name: TZ
+              value: {{ .Values.env.vm_params }}
           ports:
             - name: http
-              containerPort: {{ .Values.service.port }}
+              containerPort: {{ .Values.service.port1 }}
               protocol: TCP
-          {{- with .Values.livenessProbe }}
-          livenessProbe:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-          {{- with .Values.readinessProbe }}
-          readinessProbe:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-          {{- with .Values.resources }}
+            - name: http
+              containerPort: {{ .Values.service.port2 }}
+              protocol: TCP
+            - name: http
+              containerPort: {{ .Values.service.port3 }}
+              protocol: TCP
           resources:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-          {{- with .Values.volumeMounts }}
-          volumeMounts:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-      {{- with .Values.volumes }}
-      volumes:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.nodeSelector }}
-      nodeSelector:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.affinity }}
-      affinity:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.tolerations }}
-      tolerations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
+            requests:
+              cpu:  {{ .Values.resources.cpu_request }}
+              memory: {{ .Values.resources.memory_request }}
+            limits:
+              cpu: {{ .Values.resources.cpu_limit }}
+              memory: {{ .Values.resources.memory_limit }}
+      serviceAccount: {{ .Values.serviceAccount.name }}
