@@ -104,13 +104,3 @@
   kubernetes.core.k8s:
     state: present
     definition: "{{ lookup('template', 'klusterletAddOnConfig.yaml.j2') | from_yaml }}"
-        
-#- name: Create machinePool resources
-#  kubernetes.core.k8s:
-#    state: present
-#    definition: "{{ lookup('template', 'machinepool.yaml.j2') | from_yaml }}"
-#
-#- name: Create klusterAddOns manifest
-#  kubernetes.core.k8s:
-#    state: present
-#    definition: "{{ lookup('template', 'klusterletAddOnConfig.yaml.j2') | from_yaml }}"
