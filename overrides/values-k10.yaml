@@ -9,6 +9,10 @@ k10S3Bucket:
   name: se-lab-new
   region: us-west-2
 
+k10SecretStore:
+  name: vault-backend
+  kind: ClusterSecretStore
+
 # native k10 values must be under the 'k10' key
 k10:
   
