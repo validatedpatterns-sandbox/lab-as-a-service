@@ -1,0 +1,35 @@
+apiVersion: redhatcop.redhat.io/v1alpha1
+kind: GroupSync
+metadata:
+  name: ldap-groupsync
+spec:
+  providers:
+  - ldap:
+      credentialsSecret:
+        name: ldap-group-sync
+        namespace: group-sync-operator
+      whitelist:
+      - cn=ipausers,cn=groups,cn=accounts,dc=aws,dc=validatedpatterns,dc=io
+      insecure: true
+      rfc2307:
+        groupMembershipAttributes:
+        - member
+        groupNameAttributes:
+        - cn
+        groupUIDAttribute: dn
+        groupsQuery:
+          baseDN: cn=groups,cn=accounts,dc=aws,dc=validatedpatterns,dc=io
+          derefAliases: never
+          filter: (objectClass=groupofnames)
+          scope: sub
+        tolerateMemberNotFoundErrors: true
+        tolerateMemberOutOfScopeErrors: true
+        userNameAttributes:
+        - cn
+        userUIDAttribute: dn
+        usersQuery:
+          baseDN: cn=users,cn=accounts,dc=aws,dc=validatedpatterns,dc=io
+          derefAliases: never
+          scope: sub
+      url: ldap://idm.aws.validatedpatterns.io:389
+    name: ldap

@@ -1,0 +1,24 @@
+apiVersion: config.openshift.io/v1
+kind: OAuth
+metadata:
+  name: cluster
+spec:
+  identityProviders:
+  - name: ldapidp
+    mappingMethod: claim
+    type: LDAP
+    ldap:
+      attributes:
+        id:
+        - dn
+        email:
+        - mail
+        name:
+        - cn
+        preferredUsername:
+        - uid
+      bindDN: "uid=bandini,cn=users,cn=accounts,dc=aws,dc=validatedpatterns,dc=io"
+      bindPassword:
+        name: ldap-secret
+      insecure: true
+      url: "ldap://idm.aws.validatedpatterns.io/cn=users,cn=accounts,dc=aws,dc=validatedpatterns,dc=io?uid"
