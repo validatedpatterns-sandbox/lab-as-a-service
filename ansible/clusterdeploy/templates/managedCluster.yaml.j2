@@ -4,7 +4,8 @@ kind: ManagedCluster
 metadata:
   name: "{{ cluster.name }}"
   labels:
-    cloud: aws
-    vendor: openshift
+    cloud: "{{ cluster.cloud.provider }}"
+    vendor: OpenShift
+    clusterGroup: "{{ cluster.clusterGroup }}"
 spec:
   hubAcceptsClient: true

@@ -9,7 +9,7 @@ spec:
   clusterLabels:
     cloud: {{ cluster.cloud.provider }}
     vendor: OpenShift
-    clusterGroup: 
+    clusterGroup: {{ cluster.clusterGroup }}
   applicationManager:
     enabled: true
   policyController:
