@@ -1,0 +1,15 @@
+{{- if .Values.route.enabled -}}
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: {{ include "selenium-hub.name" . }}
+  labels:
+    {{- include "selenium-hub.labels" . | nindent 4 }}
+spec:
+  to: 
+    kind: Service
+    name: {{ include "selenium-hub.name" . }}
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+{{- end }}

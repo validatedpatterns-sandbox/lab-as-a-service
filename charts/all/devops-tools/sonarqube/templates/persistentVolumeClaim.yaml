@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    {{- include "sonarqube.labels" . | nindent 4 }}
+  name: {{ include "sonarqube.name" . }}-pv
+spec:
+  {{- with .Values.volumes }}
+  accessModes:
+  - {{ .pvc.accessMode }}
+  resources:
+    requests:
+      storage: {{ .pvc.storage | quote }}
+  {{- end }}
