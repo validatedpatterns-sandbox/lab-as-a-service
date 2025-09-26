@@ -1,0 +1,3 @@
+oc create secret generic ldap-secret --from-literal=bindPassword=password -n openshift-config
+
+oc create secret generic ldap-group-sync --from-literal=username="uid=bandini,cn=users,cn=accounts,dc=aws,dc=validatedpatterns,dc=io" --from-literal=password=password -n group-sync-operator
