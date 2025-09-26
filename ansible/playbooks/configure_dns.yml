@@ -11,7 +11,7 @@
       record: "{{ fqdn }}"
       type: A
       ttl: 60
-      value: "{{ hostvars['localhost']['bastion22nd4_public_ip'] | default(bastion22nd4_public_ip, true) }}"
+      value: "{{ hostvars['localhost']['idm_public_ip'] | default(idm_public_ip, true) }}"
       overwrite: true
       state: present
     register: r53
