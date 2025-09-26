@@ -10,7 +10,7 @@ spec:
     - port: {{ .Values.service.port }}
       targetPort: {{ .Values.service.port }}
       protocol: {{ .Values.service.protocol }}
-      name: {{ .Values.service.port }}-{{ .Values.service.protocol }}
+      name: {{ .Values.service.port }}-tcp
   selector:
     app: {{ .Values.name }}
   sessionAddinity: None
