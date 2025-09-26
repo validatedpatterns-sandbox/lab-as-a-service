@@ -3,7 +3,7 @@ kind: PersistentVolumeClaim
 metadata:
   labels:
     app: {{ .Values.name }}
-  name: {{ .Values.name }}
+  name: {{ .Values.name }}-pvc
 spec:
   accessModes:
   - ReadWriteOnce

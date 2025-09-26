@@ -24,7 +24,7 @@ podAnnotations: {}
 podLabels: {}
 podSecurityContext: {}
 securityContext:
-  value: 200
+  value: 1000
 container_port: 9000
 service:
   type: ClusterIP
@@ -91,13 +91,17 @@ resources:
   memory_request: 512M
   memory_limit: 2304M
 livenessProbe:
+  initialDelaySeconds: 80
+  periodSeconds: 20
   httpGet:
-    path: /
-    port: http
+    path: /api/system/status
+    port: 9000
 readinessProbe:
+  initialDelaySeconds: 40
+  periodSeconds: 10
   httpGet:
-    path: /
-    port: http
+    path: /api/system/status
+    port: 9000
 
 # This section is for setting up autoscaling more information can be found here: https://kubernetes.io/docs/concepts/workloads/autoscaling/
 autoscaling:
