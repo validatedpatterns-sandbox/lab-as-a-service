@@ -1,0 +1,20 @@
+apiVersion: config.kio.kasten.io/v1alpha1
+kind: Profile
+metadata:
+  name: s3-backup-location
+  namespace: kasten-io
+spec:
+  locationSpec:
+    credential:
+      secret:
+        apiVersion: v1
+        kind: secret
+        name: s3-backup-location-credentials
+        namespace: {{ .Release.Namespace }}
+      secretType: AwsAccessKey
+    objectStore:
+      name: {{ .Values.k10S3Bucket.name }}
+      region: {{ .Values.k10S3Bucket.region }}
+      objectStoreType: S3
+    type: ObjectStore
+  type: Location
