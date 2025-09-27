@@ -6,6 +6,11 @@
   controlPlane:
     name: master
     replicas: {{ cluster.controlPlane.replicas }}
+{% if cluster.cloud.provider == 'Amazon' %}
+    platform:
+      aws:
+        type: {{ cluster.controlPlane.machineType }}
+{% endif %}
   metadata:
     name: {{ cluster.name }}
   networking:
