@@ -1,0 +1,15 @@
+{{- if .Values.route.enabled -}}
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: {{ include "sonarqube.name" . }}
+  labels:
+    {{- include "sonarqube.labels" . | nindent 4 }}
+spec:
+  to: 
+    kind: Service
+    name: {{ include "sonarqube.name" . }}
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+{{- end }}

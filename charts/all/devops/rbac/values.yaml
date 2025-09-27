@@ -1,0 +1,15 @@
+serviceAccount: 
+  name: toolstack-sa
+Role:
+  namespace: devops
+  anyuid_name: system:openshift:scc:anyuid
+  privileged_name: system:openshift:scc:privileged 
+RoleBinding:
+  anyuid_name: system:openshift:scc:anyuid
+  privileged_name: system:openshift:scc:privileged
+httpRoute:
+  enabled: false
+autoscaling:
+  enabled: false
+ingress:
+  enabled: false

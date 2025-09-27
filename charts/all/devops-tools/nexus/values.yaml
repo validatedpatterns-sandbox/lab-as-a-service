@@ -1,0 +1,78 @@
+# Default values for nexus.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# This will set the replicaset count more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/
+replicaCount: 1
+
+# This sets the container image more information can be found here: https://kubernetes.io/docs/concepts/containers/images/
+image:
+  repository: quay.io/validatedpatterns/nexus3
+  # This sets the pull policy for images.
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: 3.83.2-ubi
+
+resources:
+  limits:
+    cpu: "500m"
+    memory: "2304Mi"
+  requests:
+    cpu: "250m"
+    memory: "512Mi"
+
+env:
+  - name: NEXUS_SEARCH_INDEX_REBUILD_ON_STARTUP
+    value: "true"
+  - name: INSTALL4J_ADD_VM_PARAMS
+    value: "-Xms1g -Xmx2g -XX:MaxDirectMemorySize=2g -Djava.util.prefs.userRoot=${NEXUS_DATA}/javaprefs"
+
+# This sets the parameters for the init container 
+initContainers:
+  enabled: false
+  name: chown-nexusdata-owner-to-nexus
+  image: busybox:1.34.1
+  requests:
+    cpu: "250m"
+    memory: "125Mi"
+  limits:
+    cpu: "500m"
+    memory: "2304Mi"
+
+# This section builds out the service account more information can be found here: https://kubernetes.io/docs/concepts/security/service-accounts/
+serviceAccount:
+  name: toolstack-sa
+
+securityContext:
+  allowPrivilegeEscalation: false
+  seccompProfile:
+    type: RuntimeDefault
+  capabilities:
+    drop:
+    - ALL
+  runAsNonRoot: true
+
+# This is for setting up a service more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/
+service:
+  # This sets the service type more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
+  type: ClusterIP
+  # This sets the ports more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports
+  port: 8081
+  protocol: TCP
+
+# This block is for setting up the ingress for more information can be found here: https://kubernetes.io/docs/concepts/services-networking/ingress/
+route:
+  enabled: true
+
+# Additional volumes on the output Deployment definition.
+volumes:
+  name: data-vol
+  pvc:
+    accessMode: ReadWriteOnce
+    storage: "5Gi"
+
+# Additional volumeMounts on the output Deployment definition.
+volumeMounts:
+  - name: data-vol
+    mountPath: "/nexus-data"
+
