@@ -1,3 +1,8 @@
+global:
+  options:
+    useCSV: false
+    syncPolicy: Automatic
+    installPlanApproval: Automatic
 clusterGroup:
   name: devops
   isHubCluster: false
@@ -62,3 +67,8 @@ clusterGroup:
       namespace: devops
       project: devops
       path: charts/all/devops-tools/selenium-node-firefox
+  imperative:
+    jobs:
+      - name: hello-world
+        playbook: rhvp.cluster_utils.hello_world
+        timeout: 234
