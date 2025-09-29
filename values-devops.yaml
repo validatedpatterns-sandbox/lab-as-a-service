@@ -34,31 +34,31 @@ clusterGroup:
       chartVersion: 0.1.*
     serviceaccount:
       name: rbac-sa
-      namespace: devops-navan
+      namespace: devops
       project: devops
       path: charts/all/infrastructure/rbac
     nexus:
       name: nexus
-      namespace: devops-navan
+      namespace: devops
       project: devops
       path: charts/all/devops-tools/nexus
     sonarqube:
       name: sonarqube
-      namespace: devops-navan
+      namespace: devops
       project: devops
       path: charts/all/devops-tools/sonarqube
     selenium:
       name: selenium-hub
-      namespace: devops-navan
+      namespace: devops
       project: devops
       path: charts/all/devops-tools/selenium-hub
     selenium-chrome:
       name: selenium-node-chrome
-      namespace: devops-navan
+      namespace: devops
       project: devops
       path: charts/all/devops-tools/selenium-node-chrome
     selenium-firefox:
       name: selenium-node-firefox
-      namespace: devops-navan
+      namespace: devops
       project: devops
       path: charts/all/devops-tools/selenium-node-firefox
