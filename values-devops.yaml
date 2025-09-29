@@ -2,6 +2,7 @@ clusterGroup:
   name: devops
   isHubCluster: false
   namespaces:
+    - golang-external-secrets
     - devops
   subscriptions:
     clair:
@@ -17,6 +18,7 @@ clusterGroup:
       name: openshift-pipelines-operator-rh
       source: redhat-operators
   projects:
+    - eso
     - devops
   # Explicitly mention the cluster-state based overrides we plan to use for this pattern.
   # We can use self-referential variables because the chart calls the tpl function with these variables defined
@@ -24,6 +26,12 @@ clusterGroup:
     - '/overrides/values-{{ $.Values.global.clusterPlatform }}.yaml'
     - '/overrides/values-{{ $.Values.global.clusterVersion }}-{{ $.Values.clusterGroup.name }}.yaml'
   applications:
+    golang-external-secrets:
+      name: golang-external-secrets
+      namespace: golang-external-secrets
+      project: eso
+      chart: golang-external-secrets
+      chartVersion: 0.1.*
     serviceaccount:
       name: rbac-sa
       namespace: devops-navan
