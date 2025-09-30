@@ -30,7 +30,7 @@ clusterGroup:
       name: nexus
       namespace: devops
       project: devops
-      path: charts/all/nexus
+      path: charts/all/devops-tools/nexus
   imperative:
     # NOTE: We *must* use lists and not hashes. As hashes lose ordering once parsed by helm
     # The default schedule is every 10 minutes: imperative.schedule
