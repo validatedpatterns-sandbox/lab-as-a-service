@@ -10,7 +10,19 @@ clusterGroup:
     - golang-external-secrets
     - devops
   # The only subscription on spokes is gitops which gets managed by ACM
-  # subscriptions:
+  subscriptions:
+    clair:
+      channel: stable-3.15
+      name: container-security-operator
+      source: redhat-operators
+    devspaces:
+      channel: stable
+      name: devspaces
+      source: redhat-operators
+    tekton:
+      channel: latest
+      name: openshift-pipelines-operator-rh
+      source: redhat-operators
   projects:
     - eso
     - devops
