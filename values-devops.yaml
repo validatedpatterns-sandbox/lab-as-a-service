@@ -31,6 +31,26 @@ clusterGroup:
       namespace: devops
       project: devops
       path: charts/all/devops-tools/nexus
+    sonarqube:
+      name: sonarqube
+      namespace: devops
+      project: devops
+      path: charts/all/devops-tools/sonarqube
+    selenium:
+      name: selenium-hub
+      namespace: devops
+      project: devops
+      path: charts/all/devops-tools/selenium-hub
+    selenium-chrome:
+      name: selenium-node-chrome
+      namespace: devops
+      project: devops
+      path: charts/all/devops-tools/selenium-node-chrome
+    selenium-firefox:
+      name: selenium-node-firefox
+      namespace: devops
+      project: devops
+      path: charts/all/devops-tools/selenium-node-firefox
   imperative:
     # NOTE: We *must* use lists and not hashes. As hashes lose ordering once parsed by helm
     # The default schedule is every 10 minutes: imperative.schedule
