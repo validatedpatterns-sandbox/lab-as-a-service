@@ -1,4 +1,14 @@
 # Deploy cluster using ACM
+- name: "Create {{ cluster.name }} directory"
+  ansible.builtin.file:
+    name: "{{ cluster.name }}"
+    state: directory
+    mode: 0755
+
+- name: "Set deployment_config_dir fact"
+  ansible.builtin.set_fact:
+    deployment_config_dir: "{{ cluster.name }}"
+
 - name: "Create {{ cluster.namespace }} namespace"
   kubernetes.core.k8s:
     name: "{{ cluster.namespace }}"
@@ -9,7 +19,7 @@
 - name: "Create install-config template"
   ansible.builtin.template:
     src: install-config.yaml.j2
-    dest: "{{ cluster.name }}-install-config.yaml"
+    dest: "{{ deployment_config_dir }}/{{ cluster.name }}-install-config.yaml"
 
 - name: Create install-config secrets
   kubernetes.core.k8s:
@@ -21,7 +31,7 @@
         name: "{{ cluster.name }}-install-config"
         namespace: "{{ cluster.namespace }}"
       data:
-        install-config.yaml: "{{ lookup('file', './{{ cluster.name }}-install-config.yaml') | b64encode }}"
+        install-config.yaml: "{{ lookup('file', './{{ deployment_config_dir}}/{{ cluster.name }}-install-config.yaml') | b64encode }}"
 
 - name: Create pull secret
   kubernetes.core.k8s:
@@ -79,7 +89,7 @@
 - name: Decode and save kubeconfig to file
   ansible.builtin.copy:
     content: "{{ admin_secret_info.resources[0].data.kubeconfig | b64decode }}"
-    dest: ./kubeconfig
+    dest: "./{{ deployment_config_dir }}/kubeconfig"
     mode: '0600'
 
 - name: Create an import secret using the kubeconfig
@@ -93,10 +103,10 @@
         namespace: "{{ cluster.namespace }}"
       type: Opaque
       data:
-        kubeconfig: "{{ lookup('file', './kubeconfig') | b64encode }}"
+        kubeconfig: "{{ lookup('file', './{{ deployment_config_dir }}/kubeconfig') | b64encode }}"
   register: auto_import_secret
 
-- name: Create managecluster resource
+- name: Create managedCluster resource
   kubernetes.core.k8s:
     state: present
     definition: "{{ lookup('template', 'managedCluster.yaml.j2') | from_yaml }}"
