@@ -1,4 +1,3 @@
-#SPDX-License-Identifier: MIT-0
 ---
 # tasks file for clusterdeploy
 - name: "Create {{ cluster.name }} directory"
@@ -6,6 +5,7 @@
     name: "{{ cluster.name }}"
     state: directory
     mode: 0755
+  when: create
 
 - name: "Set deployment_config_dir fact"
   ansible.builtin.set_fact:

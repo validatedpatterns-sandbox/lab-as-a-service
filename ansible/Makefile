@@ -13,7 +13,8 @@ default: help
 
 .PHONY: install
 install: ## Run playbook
-	ansible-playbook site.yaml
+	ansible-playbook site.yaml -e "@vars.yml" -e create=true
 
 .PHONY: destroy
-destroy: ## Post-install tasks
+destroy: ## Destroy playbook
+	ansible-playbook site.yaml -e "@vars.yml" -e destroy=true

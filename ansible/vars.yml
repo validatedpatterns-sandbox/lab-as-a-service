@@ -1,0 +1,25 @@
+#SPDX-License-Identifier: MIT-0
+---
+# vars file for clusterdeploy
+
+cluster:
+  clusterGroup: group-one
+  cloud: 
+    provider: Amazon
+    access_key_id: xxxxxxxxx
+    secret_access_key: xxxxxxxxxxxxxxxxxx
+  region: us-west-2
+  baseDomain: example.com
+  name: clustername
+  namespace: cluster-namespace
+  workers:
+    replicas: 1
+    machineType: m5.2xlarge
+    disk:
+      iops: 2000
+      size: 200
+      type: nvme
+  controlPlane:
+    replicas: 1
+    machineType: m5.2xlarge
+  version: img4.19.9-x86-64-appsub
