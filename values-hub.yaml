@@ -39,6 +39,11 @@ clusterGroup:
       project: hub
       chart: golang-external-secrets
       chartVersion: 0.1.*
+    aap-config:
+      name: aap-config
+      namespace: ansible-automation-platform
+      project: hub
+      path: charts/hub/aap-config
   imperative:
     jobs:
       - name: hello-world
