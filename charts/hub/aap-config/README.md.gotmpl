@@ -1,0 +1,34 @@
+{{ template "chart.header" . }}
+{{ template "chart.deprecationWarning" . }}
+
+{{ template "chart.badgesSection" . }}
+
+{{ template "chart.description" . }}
+
+This chart is used to set up the Ansible Automation Platform Operator version 2.5.
+
+### Notable changes
+
+* v0.1.2: Introduce EXTRA_PLAYBOOK_OPTS to config job, to allow for extra vars and
+-v options (usually -vvv) to be passed to playbook to help debug it
+
+* v0.1.3: Introduce "bootstrap" phase; this means that the config job will run until
+it succeeds, and only then proceed to create the cronjob to re-configure. It also
+means the cronjob scheduling is nowehere near as aggressive (every even hour at
+the 10-minute mark instead of every ten minutes as previously).
+
+* v0.1.4: Use vp-rbac subchart to configure RBACs instead of local code. Introduce
+external secrets validation job to prevent argo from proceeding past ES creation and
+erroring out early.
+
+{{ template "chart.homepageLine" . }}
+
+{{ template "chart.maintainersSection" . }}
+
+{{ template "chart.sourcesSection" . }}
+
+{{ template "chart.requirementsSection" . }}
+
+{{ template "chart.valuesSection" . }}
+
+{{ template "helm-docs.versionFooter" . }}

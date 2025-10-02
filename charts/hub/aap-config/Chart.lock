@@ -1,0 +1,6 @@
+dependencies:
+- name: vp-rbac
+  repository: https://charts.validatedpatterns.io
+  version: 0.1.2
+digest: sha256:e339eb48e5af2631b4d592b8fdca9fa5c5cc7cda06b26744a6031c7fd9c545eb
+generated: "2025-09-24T17:13:30.833058275+02:00"

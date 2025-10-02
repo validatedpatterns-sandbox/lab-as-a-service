@@ -1,0 +1,68 @@
+---
+secretStore:
+  name: vault-backend
+  kind: ClusterSecretStore
+
+aapManifest:
+  key: secret/data/hub/aap-manifest
+
+configJob:
+  image: quay.io/hybridcloudpatterns/imperative-container:v1
+  schedule: "10 */2 * * *"
+  activeDeadlineSeconds: 3600
+  imagePullPolicy: Always
+  configTimeout: 1800
+
+serviceAccountName: aap-config-sa
+serviceAccountNamespace: aap-config
+
+# Validation job configuration
+validationJob:
+  disabled: false
+  activeDeadlineSeconds: 600
+
+# RBAC configuration using vp-rbac subchart
+vp-rbac:
+  serviceAccounts:
+    aap-config-sa:
+      namespace: aap-config
+      roleBindings:
+        roles:
+          - view-all
+          - external-secrets-validator
+        clusterRoles:
+          - view-secrets-cms
+          - view-routes
+          
+  clusterRoles:
+    view-secrets-cms:
+      rules:
+      - apiGroups: [""]
+        resources: ["secrets", "configmaps"]
+        verbs: ["get", "list", "watch"]
+        
+    view-routes:
+      rules:
+      - apiGroups: ["route.openshift.io"]
+        resources: ["routes"]
+        verbs: ["get", "list", "watch"]
+    
+  roles:
+    view-all:
+      rules:
+      - apiGroups: ["*"]
+        resources: ["*"]
+        verbs: ["get", "list", "watch"]
+    
+    # RBAC for external secrets validation (namespace-scoped)
+    external-secrets-validator:
+      rules:
+      - apiGroups: ["external-secrets.io"]
+        resources: ["externalsecrets"]
+        verbs: ["get", "list", "watch"]
+      - apiGroups: [""]
+        resources: ["secrets"]
+        verbs: ["get", "list", "watch"]
+      - apiGroups: ["authorization.k8s.io"]
+        resources: ["selfsubjectrulesreviews"]
+        verbs: ["create"]
