@@ -1,4 +1,18 @@
 #SPDX-License-Identifier: MIT-0
 ---
 # tasks file for clusterdeploy
+- name: "Create {{ cluster.name }} directory"
+  ansible.builtin.file:
+    name: "{{ cluster.name }}"
+    state: directory
+    mode: 0755
+
+- name: "Set deployment_config_dir fact"
+  ansible.builtin.set_fact:
+    deployment_config_dir: "{{ cluster.name }}"
+
 - ansible.builtin.include_tasks: createCluster.yml
+  when: create
+
+- ansible.builtin.include_tasks: destroyCluster.yml
+  when: destroy

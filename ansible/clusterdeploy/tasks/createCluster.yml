@@ -1,14 +1,4 @@
 # Deploy cluster using ACM
-- name: "Create {{ cluster.name }} directory"
-  ansible.builtin.file:
-    name: "{{ cluster.name }}"
-    state: directory
-    mode: 0755
-
-- name: "Set deployment_config_dir fact"
-  ansible.builtin.set_fact:
-    deployment_config_dir: "{{ cluster.name }}"
-
 - name: "Create {{ cluster.namespace }} namespace"
   kubernetes.core.k8s:
     name: "{{ cluster.namespace }}"
@@ -31,7 +21,7 @@
         name: "{{ cluster.name }}-install-config"
         namespace: "{{ cluster.namespace }}"
       data:
-        install-config.yaml: "{{ lookup('file', './{{ deployment_config_dir}}/{{ cluster.name }}-install-config.yaml') | b64encode }}"
+        install-config.yaml: "{{ lookup('file', '{{ deployment_config_dir }}/{{ cluster.name }}-install-config.yaml') | b64encode }}"
 
 - name: Create pull secret
   kubernetes.core.k8s:
@@ -50,21 +40,72 @@
   kubernetes.core.k8s:
     state: present
     definition: "{{ lookup('template', 'aws-credentials.yaml.j2') | from_yaml }}"
-  when: "{{ cluster.cloud.provider == 'Amazon' }}"
+  when: cluster.cloud.provider == 'Amazon'
+
+- name: Create GCP credentials secret
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      api_version: v1
+      kind: Secret
+      metadata:
+        name: "{{ cluster.name }}-gcp-credentials"
+        namespace: "{{ cluster.namespace }}"
+      type:
+        Opaque
+      data:
+        osServiceAccount.json: "{{ lookup('file', '~/.gcp/osServiceAccount.json') |from_json }}"
+  when: cluster.cloud.provider == 'Google'
+
+- name: Create Azure credentials secret
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      api_version: v1
+      kind: Secret
+      metadata:
+        name: "{{ cluster.name }}-azure-creds"
+        namespace: "{{ cluster.namespace }}"
+      type: Opaque
+      data:
+        osServicePrincipal.json: "{{ lookup('file', '~/.azure/osServicePrincipal.json' ) | from_json }}"
+  when: cluster.cloud.provider == 'Azure'
 
 - name: Create clusterDeployment resources
   kubernetes.core.k8s:
     state: present
     definition: "{{ lookup('template', 'clusterDeployment.yaml.j2') | from_yaml }}"
+  register: cd
 
 - name: Create machinePool resources
   kubernetes.core.k8s:
     state: present
     definition: "{{ lookup('template', 'machinepool.yaml.j2') | from_yaml }}"
 
-- name: Wait 60 Seconds before moving on
-  ansible.builtin.pause:
-    seconds: 60
+- name: Wait for adminKubeconfigSecretRef to be populated
+  kubernetes.core.k8s_info:
+    api_version: hive.openshift.io/v1
+    kind: ClusterDeployment
+    namespace: '{{ cluster.namespace }}'
+    name: '{{ cluster.name }}'
+  register: cd_status
+  until: 
+    - cd_status.resources[0].spec.clusterMetadata.adminKubeconfigSecretRef.name is defined
+  retries: 90
+  delay: 1
+
+- name: "Wait for Pod with hive.openshift.io/cluster-deployment-name/{{ cluster.name }} label to be Running"
+  kubernetes.core.k8s_info:
+    api_version: v1
+    kind: Pod
+    namespace: "{{ cluster.namespace }}"
+    label_selectors:
+      - 'hive.openshift.io/cluster-deployment-name={{ cluster.name }}' 
+  register: pod_status
+  until: 
+    - pod_status.resources[0].status.phase == 'Running'
+  retries: 60
+  delay: 5
 
 - name: Get cluster deployment object to find the kubeconfig secret name
   kubernetes.core.k8s_info:
@@ -89,7 +130,7 @@
 - name: Decode and save kubeconfig to file
   ansible.builtin.copy:
     content: "{{ admin_secret_info.resources[0].data.kubeconfig | b64decode }}"
-    dest: "./{{ deployment_config_dir }}/kubeconfig"
+    dest: "{{ deployment_config_dir }}/kubeconfig"
     mode: '0600'
 
 - name: Create an import secret using the kubeconfig
@@ -103,10 +144,10 @@
         namespace: "{{ cluster.namespace }}"
       type: Opaque
       data:
-        kubeconfig: "{{ lookup('file', './{{ deployment_config_dir }}/kubeconfig') | b64encode }}"
+        kubeconfig: "{{ lookup('file', '{{ deployment_config_dir }}/kubeconfig') | b64encode }}"
   register: auto_import_secret
 
-- name: Create managedCluster resource
+- name: Create managecluster resource
   kubernetes.core.k8s:
     state: present
     definition: "{{ lookup('template', 'managedCluster.yaml.j2') | from_yaml }}"
