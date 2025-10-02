@@ -6,6 +6,11 @@ secretStore:
 aapManifest:
   key: secret/data/hub/aap-manifest
 
+aap:
+  eda_disabled: false
+  hub_disabled: true
+  lightspeed_disabled: true
+
 configJob:
   image: quay.io/hybridcloudpatterns/imperative-container:v1
   schedule: "10 */2 * * *"
