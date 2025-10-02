@@ -4,8 +4,8 @@ kind: ManagedCluster
 metadata:
   name: "{{ cluster.name }}"
   labels:
-    cloud: "{{ cluster.cloud.provider }}"
-    vendor: OpenShift
+    cloud: auto-detect
+    vendor: auto-detect
     clusterGroup: "{{ cluster.clusterGroup }}"
     cluster.open-cluster-management.io/clusterset: default
 spec:
