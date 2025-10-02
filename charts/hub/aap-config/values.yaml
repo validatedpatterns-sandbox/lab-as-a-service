@@ -19,7 +19,7 @@ configJob:
   configTimeout: 1800
 
 serviceAccountName: aap-config-sa
-serviceAccountNamespace: aap-config
+serviceAccountNamespace: ansible-automation-platform
 
 # Validation job configuration
 validationJob:
@@ -30,7 +30,7 @@ validationJob:
 vp-rbac:
   serviceAccounts:
     aap-config-sa:
-      namespace: aap-config
+      namespace: ansible-automation-platform
       roleBindings:
         roles:
           - view-all
