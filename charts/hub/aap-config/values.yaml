@@ -1,4 +1,8 @@
 ---
+global:
+  repoURL: test
+  targetRevision: main
+
 secretStore:
   name: vault-backend
   kind: ClusterSecretStore

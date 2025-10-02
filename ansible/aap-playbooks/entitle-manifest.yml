@@ -1,0 +1,120 @@
+---
+- hosts: localhost
+  gather_facts: no
+  tasks:
+  - name: Read helm values
+    ansible.builtin.include_vars:
+      file: "/pattern-home/helm-values/values.yaml"
+
+  - name: debug
+    ansible.builtin.debug:
+      msg: "{{ global }}"
+
+  - name: Set variables
+    ansible.builtin.set_fact:
+      aap_hostname: "aap-ansible-automation-platform.{{ global.localClusterDomain }}"
+      api_prefix: "api/controller/v2"
+      admin_password: "{{ lookup('file', '/pattern-home/aap-admin-password/password') }}"
+      aap_validate_certs: false
+      aap_username: admin
+      aap_password: "{{ lookup('file', '/pattern-home/aap-admin-password/password') }}"
+
+  - name: debug2
+    ansible.builtin.debug:
+      msg: "{{ aap_hostname }}"
+
+  - name: Wait for Automation Controller to be up
+    ansible.builtin.uri:
+      url: "https://{{ aap_hostname }}/{{ api_prefix }}/ping/"
+      method: GET
+      user: '{{ admin_user | default("admin") }}'
+      password: "{{ admin_password }}"
+      validate_certs: false
+    register: check2
+    until: check2.json is defined and check2.json.instances[0].capacity > 0 and check2.json.instance_groups[0].capacity > 0
+    retries: 60
+    delay: 10
+
+  - name: Display api ping results
+    ansible.builtin.debug:
+      msg: '{{ check2.json }}'
+
+  - name: Default to entitlement
+    ansible.builtin.set_fact:
+      entitle_aap: true
+
+  - name: Set manifest content variable
+    ansible.builtin.set_fact:
+      manifest_content: "{{ lookup('file', '/pattern-home/aap_manifest.zip') | b64encode }}"
+
+  - name: Entitle AAP if needed
+    block:
+      # AAP will have an empty license_info block if it hasn't been entitled
+      # of course we expect to entitle it through the containerized installer
+      # But in case we didn't use the containerized installer, we have this check
+      # and this block as a failsafe
+      - name: Check on current license_info status
+        ansible.builtin.uri:
+          url: 'https://{{ aap_hostname }}/{{ api_prefix }}/config/'
+          method: GET
+          user: '{{ admin_user | default("admin") }}'
+          password: "{{ admin_password }}"
+          validate_certs: false
+          force_basic_auth: true
+        register: config_check
+
+      - name: Debug license_info status
+        ansible.builtin.debug:
+          var: config_check
+
+      - name: Turn off entitlement if needed
+        ansible.builtin.set_fact:
+          entitle_aap: false
+        when:
+          - config_check.json.license_info.valid_key
+
+    rescue:
+      - name: Notify that we are going to entitle
+        ansible.builtin.debug:
+          msg: "Caught an exception, entitling"
+
+  - name: Post manifest file if needed
+    ansible.builtin.uri:
+      url: 'https://{{ aap_hostname }}/{{ api_prefix }}/config/'
+      method: POST
+      user: '{{ admin_user | default("admin") }}'
+      password: "{{ admin_password }}"
+      body: '{ "eula_accepted": true, "manifest": "{{ manifest_content }}" }'
+      body_format: json
+      validate_certs: false
+      force_basic_auth: true
+    when: entitle_aap
+    register: license_controller
+    until: license_controller is not failed
+    retries: 5
+
+  - name: create a token
+    awx.awx.token:
+      controller_host: "{{ aap_hostname }}"
+      controller_username: "{{ aap_username }}"
+      controller_password: "{{ aap_password }}"
+      validate_certs: false
+      description: "test-k8s-token"
+      state: present
+    register: controller_token
+
+  - name: debug3
+    ansible.builtin.debug:
+      msg: "{{ controller_token }}"
+
+  - name: store the token as a Kubernetes secret
+    kubernetes.core.k8s:
+      state: present
+      definition:
+        apiVersion: v1
+        kind: Secret
+        metadata:
+          namespace: ansible-automation-platform
+          name: controller-login-token
+        data:
+          token: "{{ controller_token.ansible_facts.controller_token.token | ansible.builtin.b64encode }}"
