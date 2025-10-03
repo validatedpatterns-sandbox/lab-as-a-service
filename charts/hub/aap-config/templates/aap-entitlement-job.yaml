@@ -71,7 +71,7 @@ spec:
             - /bin/bash
             - -c
             - > 
-              ansible-playbook -vvv /pattern-home/git/ansible/aap-playbooks/entitle-manifest.yml
+              ansible-playbook /pattern-home/git/ansible/aap-playbooks/entitle-manifest.yml
           volumeMounts:
             - name: scratch-space
               mountPath: /pattern-home
