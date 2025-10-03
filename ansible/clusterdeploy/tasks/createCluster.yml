@@ -1,11 +1,11 @@
 # Deploy cluster using ACM
-- name: "Create {{ cluster.namespace }} namespace"
+- name: "Create namespace {{ cluster.namespace }}"
   kubernetes.core.k8s:
     name: "{{ cluster.namespace }}"
     api_version: v1
     kind: Namespace
     state: present
-    
+
 - name: "Create install-config template"
   ansible.builtin.template:
     src: install-config.yaml.j2
@@ -54,7 +54,7 @@
       type:
         Opaque
       data:
-        osServiceAccount.json: "{{ lookup('file', '~/.gcp/osServiceAccount.json') |from_json }}"
+        osServiceAccount.json: "{{ lookup('file', '~/.gcp/osServiceAccount.json') | from_json }}"
   when: cluster.cloud.provider == 'Google'
 
 - name: Create Azure credentials secret
@@ -68,7 +68,7 @@
         namespace: "{{ cluster.namespace }}"
       type: Opaque
       data:
-        osServicePrincipal.json: "{{ lookup('file', '~/.azure/osServicePrincipal.json' ) | from_json }}"
+        osServicePrincipal.json: "{{ lookup('file', '~/.azure/osServicePrincipal.json') | from_json }}"
   when: cluster.cloud.provider == 'Azure'
 
 - name: Create clusterDeployment resources
@@ -89,20 +89,20 @@
     namespace: '{{ cluster.namespace }}'
     name: '{{ cluster.name }}'
   register: cd_status
-  until: 
+  until:
     - cd_status.resources[0].spec.clusterMetadata.adminKubeconfigSecretRef.name is defined
   retries: 90
   delay: 1
 
-- name: "Wait for Pod with hive.openshift.io/cluster-deployment-name/{{ cluster.name }} label to be Running"
+- name: "Wait for Running Pod with label hive.openshift.io/cluster-deployment-name/{{ cluster.name }}"
   kubernetes.core.k8s_info:
     api_version: v1
     kind: Pod
     namespace: "{{ cluster.namespace }}"
     label_selectors:
-      - 'hive.openshift.io/cluster-deployment-name={{ cluster.name }}' 
+      - 'hive.openshift.io/cluster-deployment-name={{ cluster.name }}'
   register: pod_status
-  until: 
+  until:
     - pod_status.resources[0].status.phase == 'Running'
   retries: 60
   delay: 5
@@ -118,7 +118,7 @@
 - name: Define the secret name as a fact for later use
   ansible.builtin.set_fact:
     admin_secret_name: "{{ cluster_deployment.resources[0].spec.clusterMetadata.adminKubeconfigSecretRef.name }}"
-  
+
 - name: Get the secret containing the kubeconfig
   kubernetes.core.k8s_info:
     api_version: v1
