@@ -11,6 +11,11 @@
   ansible.builtin.set_fact:
     deployment_config_dir: "{{ cluster.name }}"
 
+#- name: "Create install-config template"
+#  ansible.builtin.template:
+#    src: install-config.yaml.j2
+#    dest: "{{ deployment_config_dir }}/{{ cluster.cloud.provider }}-install-config.yaml"
+
 - ansible.builtin.include_tasks: createCluster.yml
   when: create
 

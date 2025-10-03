@@ -3,13 +3,42 @@
   compute:
   - name: worker
     replicas: {{ cluster.workers.replicas }}
+    platform:
+{% if cluster.cloud.provider == 'Azure' %}
+      azure:
+        osDisk:
+          diskSizeGB: 128
+        type: {{ cluster.workers.machineType }}
+{% elif cluster.cloud.provider == 'Google' %}
+      gcp:
+        type: {{ cluster.workers.machineType }}
+{% else %}
+      aws:
+        rootVolume:
+          iops: {{ cluster.workers.disk.iops }}
+          size: {{ cluster.workers.disk.size }}
+          type: {{ cluster.workers.disk.type }}
+      type: {{ cluster.workers.machineType }}
+{% endif %}
   controlPlane:
     name: master
     replicas: {{ cluster.controlPlane.replicas }}
-{% if cluster.cloud.provider == 'Amazon' %}
     platform:
+{% if cluster.cloud.provider == 'Azure' %}
+      azure:
+        osDisk:
+          diskSizeGB: 128
+        type: {{ cluster.workers.machineType }}
+{% elif cluster.cloud.provider == 'Google' %}
+      gcp:
+        type: {{ cluster.workers.machineType }}
+{% else %}
       aws:
-        type: {{ cluster.controlPlane.machineType }}
+        rootVolume:
+          iops: {{ cluster.workers.disk.iops }}
+          size: {{ cluster.workers.disk.size }}
+          type: {{ cluster.workers.disk.type }}
+      type: {{ cluster.workers.machineType }}
 {% endif %}
   metadata:
     name: {{ cluster.name }}
@@ -21,8 +50,18 @@
     serviceNetwork:
     - 172.30.0.0/16
   platform:
+{% if cluster.cloud.provider == 'Google' %}
+    gcp:
+      projectID: {{ gcp.projectID }}
+      region: {{ cluster.region }}
+{% elif cluster.cloud.provider == 'Azure' %}
+    azure:
+      cloudName: {{ azure.cloudName }}
+      baseDomainResourceGroupName: {{ azure.baseDomainResourceGroupName }}
+{% else %}
     aws:
       region: {{ cluster.region }}
+{% endif %}
   publish: External
   pullSecret: '{"auths": ...}'
   sshKey: |

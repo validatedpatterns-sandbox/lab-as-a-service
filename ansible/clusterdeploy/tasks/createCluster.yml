@@ -49,12 +49,12 @@
       api_version: v1
       kind: Secret
       metadata:
-        name: "{{ cluster.name }}-gcp-credentials"
+        name: "{{ cluster.name }}-{{ cluster.cloud.provider | lower}}-credentials"
         namespace: "{{ cluster.namespace }}"
       type:
         Opaque
       data:
-        osServiceAccount.json: "{{ lookup('file', '~/.gcp/osServiceAccount.json') |from_json }}"
+        osServiceAccount.json: "{{ lookup('file', '~/.gcp/osServiceAccount.json') | b64encode }}"
   when: cluster.cloud.provider == 'Google'
 
 - name: Create Azure credentials secret
@@ -64,11 +64,11 @@
       api_version: v1
       kind: Secret
       metadata:
-        name: "{{ cluster.name }}-azure-creds"
+        name: "{{ cluster.name }}-{{ cluster.cloud.provider | lower}}-credentials"
         namespace: "{{ cluster.namespace }}"
       type: Opaque
       data:
-        osServicePrincipal.json: "{{ lookup('file', '~/.azure/osServicePrincipal.json' ) | from_json }}"
+        osServicePrincipal.json: "{{ lookup('file', '~/.azure/osServicePrincipal.json' ) | b64encode }}"
   when: cluster.cloud.provider == 'Azure'
 
 - name: Create clusterDeployment resources
@@ -77,10 +77,10 @@
     definition: "{{ lookup('template', 'clusterDeployment.yaml.j2') | from_yaml }}"
   register: cd
 
-- name: Create machinePool resources
-  kubernetes.core.k8s:
-    state: present
-    definition: "{{ lookup('template', 'machinepool.yaml.j2') | from_yaml }}"
+#- name: Create machinePool resources
+#  kubernetes.core.k8s:
+#    state: present
+#    definition: "{{ lookup('template', 'machinepool.yaml.j2') | from_yaml }}"
 
 - name: Wait for adminKubeconfigSecretRef to be populated
   kubernetes.core.k8s_info:
