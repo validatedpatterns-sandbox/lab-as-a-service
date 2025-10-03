@@ -1,18 +1,20 @@
 ---
 # tasks file for clusterdeploy
-- name: "Create {{ cluster.name }} directory"
+- name: "Create directory {{ cluster.name }}"
   ansible.builtin.file:
     name: "{{ cluster.name }}"
     state: directory
-    mode: 0755
+    mode: "0755"
   when: create
 
 - name: "Set deployment_config_dir fact"
   ansible.builtin.set_fact:
     deployment_config_dir: "{{ cluster.name }}"
 
-- ansible.builtin.include_tasks: createCluster.yml
+- name: "Create cluster tasks"
+  ansible.builtin.include_tasks: createCluster.yml
   when: create
 
-- ansible.builtin.include_tasks: destroyCluster.yml
+- name: "Destroy cluster tasks"
+  ansible.builtin.include_tasks: destroyCluster.yml
   when: destroy

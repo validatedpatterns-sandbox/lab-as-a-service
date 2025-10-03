@@ -9,6 +9,9 @@ exclude_paths:
   - common/
   - tests/
 
+skip_list:
+  - unknown-module
+
 # warn_list:
 #   - yaml
 #   - schema

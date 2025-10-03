@@ -1,0 +1,10 @@
+apiVersion: "tower.ansible.com/v1alpha1"
+kind: AnsibleInventory
+metadata:
+  name: base-inventory
+  namespace: ansible-automation-platform
+spec:
+  connection_secret: aap-login-token
+  description: Empty inventory for jobs with only local inve
+  name: base-inventory
+  organization: Default

@@ -1,6 +1,5 @@
 - name: Cluster Management
   hosts: localhost
-  vars:
-    gather_facts: false
+  gather_facts: false
   roles:
     - clusterdeploy
