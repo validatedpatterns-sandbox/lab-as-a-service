@@ -11,6 +11,7 @@
       msg: "{{ global }}"
 
   - name: Set variables
+    no_log: true
     ansible.builtin.set_fact:
       aap_hostname: "aap-ansible-automation-platform.{{ global.localClusterDomain }}"
       api_prefix: "api/controller/v2"
@@ -93,21 +94,25 @@
     until: license_controller is not failed
     retries: 5
 
-  - name: create a token
-    awx.awx.token:
-      controller_host: "{{ aap_hostname }}"
-      controller_username: "{{ aap_username }}"
-      controller_password: "{{ aap_password }}"
+  - name: Create a token
+    ansible.platform.token:
+      gateway_hostname: "{{ aap_hostname }}"
+      gateway_username: "{{ aap_username }}"
+      gateway_password: "{{ aap_password }}"
       validate_certs: false
-      description: "test-k8s-token"
-      state: present
-    register: controller_token
+      description: "Automation token"
+    register: user_token
 
   - name: debug3
     ansible.builtin.debug:
-      msg: "{{ controller_token }}"
+      msg: "{{ user_token }}"
 
-  - name: store the token as a Kubernetes secret
+  - name: Assert that the token was created
+    ansible.builtin.assert:
+      that:
+        - user_token is changed
+
+  - name: Store the token as a Kubernetes secret
     kubernetes.core.k8s:
       state: present
       definition:
@@ -115,6 +120,7 @@
         kind: Secret
         metadata:
           namespace: ansible-automation-platform
-          name: controller-login-token
+          name: aap-login-token
         data:
-          token: "{{ controller_token.ansible_facts.controller_token.token | ansible.builtin.b64encode }}"
+          token: "{{ user_token.ansible_facts.aap_token.token | ansible.builtin.b64encode }}"
+          host: "{{ aap_hostname | ansible.builtin.b64encode }}"
