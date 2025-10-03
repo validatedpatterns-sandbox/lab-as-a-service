@@ -30,59 +30,30 @@ erroring out early.
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
+| aap.eda_disabled | bool | `false` |  |
+| aap.hub_disabled | bool | `true` |  |
+| aap.lightspeed_disabled | bool | `true` |  |
 | aapManifest.key | string | `"secret/data/hub/aap-manifest"` |  |
-| agof.agof_repo | string | `"https://github.com/validatedpatterns/agof.git"` |  |
-| agof.agof_revision | string | `"v2"` |  |
-| agof.automationHubTokenKey | string | `"secret/data/hub/automation-hub-token"` |  |
-| agof.extraPlaybookOpts | string | `""` |  |
-| agof.iac_repo | string | `"https://github.com/validatedpatterns-demos/ansible-edge-gitops-hmi-config-as-code.git"` |  |
-| agof.iac_revision | string | `"main"` |  |
-| agof.vaultFileKey | string | `"secret/data/hub/agof-vault-file"` |  |
 | configJob.activeDeadlineSeconds | int | `3600` |  |
 | configJob.configTimeout | int | `1800` |  |
-| configJob.image | string | `"quay.io/hybridcloudpatterns/imperative-container:v1"` |  |
+| configJob.image | string | `"quay.io/rhn_support_mbaldess/ansible-aap-config-container:latest"` |  |
 | configJob.imagePullPolicy | string | `"Always"` |  |
 | configJob.schedule | string | `"10 */2 * * *"` |  |
+| global.repoURL | string | `"test"` |  |
+| global.targetRevision | string | `"main"` |  |
 | secretStore.kind | string | `"ClusterSecretStore"` |  |
 | secretStore.name | string | `"vault-backend"` |  |
 | serviceAccountName | string | `"aap-config-sa"` |  |
-| serviceAccountNamespace | string | `"aap-config"` |  |
+| serviceAccountNamespace | string | `"ansible-automation-platform"` |  |
 | validationJob.activeDeadlineSeconds | int | `600` |  |
 | validationJob.disabled | bool | `false` |  |
-| vp-rbac.clusterRoles.view-routes.rules[0].apiGroups[0] | string | `"route.openshift.io"` |  |
-| vp-rbac.clusterRoles.view-routes.rules[0].resources[0] | string | `"routes"` |  |
-| vp-rbac.clusterRoles.view-routes.rules[0].verbs[0] | string | `"get"` |  |
-| vp-rbac.clusterRoles.view-routes.rules[0].verbs[1] | string | `"list"` |  |
-| vp-rbac.clusterRoles.view-routes.rules[0].verbs[2] | string | `"watch"` |  |
-| vp-rbac.clusterRoles.view-secrets-cms.rules[0].apiGroups[0] | string | `""` |  |
-| vp-rbac.clusterRoles.view-secrets-cms.rules[0].resources[0] | string | `"secrets"` |  |
-| vp-rbac.clusterRoles.view-secrets-cms.rules[0].resources[1] | string | `"configmaps"` |  |
-| vp-rbac.clusterRoles.view-secrets-cms.rules[0].verbs[0] | string | `"get"` |  |
-| vp-rbac.clusterRoles.view-secrets-cms.rules[0].verbs[1] | string | `"list"` |  |
-| vp-rbac.clusterRoles.view-secrets-cms.rules[0].verbs[2] | string | `"watch"` |  |
-| vp-rbac.roles.external-secrets-validator.rules[0].apiGroups[0] | string | `"external-secrets.io"` |  |
-| vp-rbac.roles.external-secrets-validator.rules[0].resources[0] | string | `"externalsecrets"` |  |
-| vp-rbac.roles.external-secrets-validator.rules[0].verbs[0] | string | `"get"` |  |
-| vp-rbac.roles.external-secrets-validator.rules[0].verbs[1] | string | `"list"` |  |
-| vp-rbac.roles.external-secrets-validator.rules[0].verbs[2] | string | `"watch"` |  |
-| vp-rbac.roles.external-secrets-validator.rules[1].apiGroups[0] | string | `""` |  |
-| vp-rbac.roles.external-secrets-validator.rules[1].resources[0] | string | `"secrets"` |  |
-| vp-rbac.roles.external-secrets-validator.rules[1].verbs[0] | string | `"get"` |  |
-| vp-rbac.roles.external-secrets-validator.rules[1].verbs[1] | string | `"list"` |  |
-| vp-rbac.roles.external-secrets-validator.rules[1].verbs[2] | string | `"watch"` |  |
-| vp-rbac.roles.external-secrets-validator.rules[2].apiGroups[0] | string | `"authorization.k8s.io"` |  |
-| vp-rbac.roles.external-secrets-validator.rules[2].resources[0] | string | `"selfsubjectrulesreviews"` |  |
-| vp-rbac.roles.external-secrets-validator.rules[2].verbs[0] | string | `"create"` |  |
-| vp-rbac.roles.view-all.rules[0].apiGroups[0] | string | `"*"` |  |
-| vp-rbac.roles.view-all.rules[0].resources[0] | string | `"*"` |  |
-| vp-rbac.roles.view-all.rules[0].verbs[0] | string | `"get"` |  |
-| vp-rbac.roles.view-all.rules[0].verbs[1] | string | `"list"` |  |
-| vp-rbac.roles.view-all.rules[0].verbs[2] | string | `"watch"` |  |
-| vp-rbac.serviceAccounts.aap-config-sa.namespace | string | `"aap-config"` |  |
-| vp-rbac.serviceAccounts.aap-config-sa.roleBindings.clusterRoles[0] | string | `"view-secrets-cms"` |  |
-| vp-rbac.serviceAccounts.aap-config-sa.roleBindings.clusterRoles[1] | string | `"view-routes"` |  |
-| vp-rbac.serviceAccounts.aap-config-sa.roleBindings.roles[0] | string | `"view-all"` |  |
-| vp-rbac.serviceAccounts.aap-config-sa.roleBindings.roles[1] | string | `"external-secrets-validator"` |  |
+| vp-rbac.roles.create-secrets.rules[0].apiGroups[0] | string | `""` |  |
+| vp-rbac.roles.create-secrets.rules[0].resources[0] | string | `"secrets"` |  |
+| vp-rbac.roles.create-secrets.rules[0].verbs[0] | string | `"create"` |  |
+| vp-rbac.roles.create-secrets.rules[0].verbs[1] | string | `"get"` |  |
+| vp-rbac.roles.create-secrets.rules[0].verbs[2] | string | `"list"` |  |
+| vp-rbac.serviceAccounts.aap-config-sa.namespace | string | `"ansible-automation-platform"` |  |
+| vp-rbac.serviceAccounts.aap-config-sa.roleBindings.roles[0] | string | `"create-secrets"` |  |
 
 ----------------------------------------------
 Autogenerated from chart metadata using [helm-docs v1.14.2](https://github.com/norwoodj/helm-docs/releases/v1.14.2)
