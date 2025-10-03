@@ -37,38 +37,11 @@ vp-rbac:
       namespace: ansible-automation-platform
       roleBindings:
         roles:
-          - view-all
-          - external-secrets-validator
           - create-secrets
-        clusterRoles:
-          - view-routes
 
-  clusterRoles:
-    view-routes:
-      rules:
-      - apiGroups: ["route.openshift.io"]
-        resources: ["routes"]
-        verbs: ["get", "list", "watch"]
-    
   roles:
     create-secrets:
       rules:
       - apiGroups: [""]
         resources: ["secrets"]
-        verbs: ["create"]
-     
-    view-all:
-      rules:
-      - apiGroups: ["*"]
-        resources: ["*"]
-        verbs: ["get", "list", "watch"]
-    
-    # RBAC for external secrets validation (namespace-scoped)
-    external-secrets-validator:
-      rules:
-      - apiGroups: ["external-secrets.io"]
-        resources: ["externalsecrets"]
-        verbs: ["get", "list", "watch"]
-      - apiGroups: ["authorization.k8s.io"]
-        resources: ["selfsubjectrulesreviews"]
-        verbs: ["create"]
+        verbs: ["create", "get", "list"]

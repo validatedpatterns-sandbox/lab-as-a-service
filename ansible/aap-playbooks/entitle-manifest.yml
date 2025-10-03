@@ -6,10 +6,6 @@
     ansible.builtin.include_vars:
       file: "/pattern-home/helm-values/values.yaml"
 
-  - name: debug
-    ansible.builtin.debug:
-      msg: "{{ global }}"
-
   - name: Set variables
     no_log: true
     ansible.builtin.set_fact:
@@ -20,7 +16,7 @@
       aap_username: admin
       aap_password: "{{ lookup('file', '/pattern-home/aap-admin-password/password') }}"
 
-  - name: debug2
+  - name: Show AAP hostname
     ansible.builtin.debug:
       msg: "{{ aap_hostname }}"
 
@@ -102,15 +98,6 @@
       validate_certs: false
       description: "Automation token"
     register: user_token
-
-  - name: debug3
-    ansible.builtin.debug:
-      msg: "{{ user_token }}"
-
-  - name: Assert that the token was created
-    ansible.builtin.assert:
-      that:
-        - user_token is changed
 
   - name: Store the token as a Kubernetes secret
     kubernetes.core.k8s:
