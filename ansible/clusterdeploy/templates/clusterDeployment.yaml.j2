@@ -9,7 +9,13 @@ spec:
   clusterName: {{ cluster.name }}
   installAttemptsLimit: 1
   platform:
+{% if cluster.cloud.provider == 'Google' %}
+    gcp:
+{% elif cluster.cloud.provider == 'Azure' %}
+    azure:
+{% else %}
     aws:
+{% endif %}
       region: {{ cluster.region }}
       credentialsSecretRef:
         name: {{ cluster.name }}-{{ cluster.cloud.provider |lower }}-credentials

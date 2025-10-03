@@ -2,6 +2,14 @@
 ---
 # vars file for clusterdeploy
 
+#placeholders for now until we figure out a better way to organize
+azure:
+  cloudName: '' #Defaults to AzurePublicCloud
+  baseDomainResourceGroupName: ''
+
+gcp:
+  projectID: ''
+
 cluster:
   clusterGroup: group-one
   cloud:
@@ -23,3 +31,18 @@ cluster:
     replicas: 1
     machineType: m5.2xlarge
   version: img4.19.9-x86-64-appsub
+
+
+#
+#cluster:
+#  google:
+#    projectID:
+#
+#cluster:
+#  azure:
+#    cloudName: AzurePublicCloud
+#    baseDomainResourceGroupName
+#cluster:
+#  aws:
+#    access_key_id:
+#    secret_access_key:
