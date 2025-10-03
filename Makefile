@@ -23,3 +23,7 @@ post-install: ## Post-install tasks
 .PHONY: test
 test:
 	@make -f common/Makefile PATTERN_OPTS="-f values-global.yaml -f values-hub.yaml" test
+
+.PHONY: ansible-lint
+ansible-lint: ## run ansible lint on ansible/ folder
+	ansible-lint -vvv ansible/

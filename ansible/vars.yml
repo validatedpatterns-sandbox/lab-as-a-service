@@ -1,10 +1,10 @@
-#SPDX-License-Identifier: MIT-0
+# SPDX-License-Identifier: MIT-0
 ---
 # vars file for clusterdeploy
 
 cluster:
   clusterGroup: group-one
-  cloud: 
+  cloud:
     provider: Amazon
     access_key_id: xxxxxxxxx
     secret_access_key: xxxxxxxxxxxxxxxxxx

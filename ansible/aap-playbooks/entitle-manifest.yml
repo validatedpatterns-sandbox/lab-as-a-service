@@ -90,6 +90,7 @@
     until: license_controller is not failed
     retries: 5
 
+  # ansible-lint: disable-rule=syntax-check[unknown-module]
   - name: Create a token
     ansible.platform.token:
       gateway_hostname: "{{ aap_hostname }}"

@@ -10,20 +10,20 @@
   register: destroy_cluster
   when: destroy
 
-- name: "Wait for {{ cluster.name }} ClusterDeployment to be fully deleted"
+- name: "Wait forClusterDeployment to be fully deleted: {{ cluster.name }}"
   kubernetes.core.k8s_info:
     api_version: hive.openshift.io/v1
     kind: ClusterDeployment
     name: "{{ cluster.name }}"
     namespace: "{{ cluster.namespace }}"
   register: deletion_status
-  until: 
+  until:
     - deletion_status.resources is not defined or deletion_status.resources | length == 0
   retries: 120
   delay: 10
   when: destroy
 
-- name: "Remove {{ cluster.namespace }} namespace "
+- name: "Remove namespace {{ cluster.namespace }}"
   kubernetes.core.k8s:
     api_version: v1
     kind: Namespace
@@ -37,6 +37,6 @@
   ansible.builtin.file:
     state: absent
     path: "{{ deployment_config_dir }}"
-  when: 
+  when:
     - destroy
     - deletion_status is succeeded
