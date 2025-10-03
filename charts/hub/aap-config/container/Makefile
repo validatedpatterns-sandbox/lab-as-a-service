@@ -5,7 +5,7 @@ CONTAINER ?= $(NAME):$(TAG)
 DISABLE_LINTERS ?= "-e VALIDATE_SHELL_SHFMT=false"
 
 REGISTRY ?= localhost
-UPLOADREGISTRY ?= quay.io/rhn_support_mbaldess
+UPLOADREGISTRY ?= quay.io/validatedpatterns
 TESTCOMMAND := "set -e; echo '* Python: '; python --version ; \
 		echo '* Ansible: '; ansible --version ; \
 		echo '* kubernetes.core: '; ansible-galaxy collection list | grep kubernetes.core ; \
