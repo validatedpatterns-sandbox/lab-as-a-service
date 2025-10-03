@@ -5,10 +5,10 @@ metadata:
   name: ansible-project
   namespace: ansible-automation-platform
 spec:
-  branch: main
+  branch: {{ .Values.global.targetRevision }}
   connection_secret: aap-login-token
   description: "Ansible project to wrap jobs interacting with the ciphetrust manager"
-  name: cte-automation-project
+  name: laas-project
   organization: Default
   repo: {{ .Values.global.repoURL }}
   scm_type: git

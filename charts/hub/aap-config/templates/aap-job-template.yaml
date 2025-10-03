@@ -1,0 +1,20 @@
+---
+apiVersion: "tower.ansible.com/v1alpha1"
+kind: JobTemplate
+metadata:
+  name: laas-template
+  namespace: ansible-automation-platform
+spec:
+  name: laas-job
+  connection_secret: aap-login-token
+  inventory: base-inventory
+  description: laas job template
+  project: laas-project
+  playbook: 'ansible/clusterdeploy/tasks/main.yml'
+  organization: Default
+  #credentials:
+  #  - test
+  ask_variables_on_launch: true
+  #extra_vars:
+  #  new_cluster_id: 'placeholder'
+  #  server_ip: foo
