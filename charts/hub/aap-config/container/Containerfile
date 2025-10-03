@@ -1,0 +1,65 @@
+FROM registry.access.redhat.com/ubi9/ubi-minimal:latest
+
+ARG TITLE="lab-as-a-service-container"
+ARG DESCRIPTION="LaaS - Laab as a Service - Container"
+ARG MAINTAINER="Validated Patterns <team-validated-patterns@redhat.com>"
+# https://spdx.org/licenses/
+ARG LICENSE="Apache-2.0"
+ARG URL="https://github.com/validatedpatterns"
+ARG SOURCE="https://github.com/validatedpatterns-sandbox/vp-frankfurt/charts/hub/aap-config/container/blob/main/Containerfile"
+
+# https://github.com/opencontainers/image-spec/blob/main/annotations.md#pre-defined-annotation-keys
+LABEL org.opencontainers.image.title="${TITLE}" \
+      org.opencontainers.image.description="${DESCRIPTION}" \
+      org.opencontainers.image.url="${URL}" \
+      org.opencontainers.image.source="${SOURCE}" \
+      org.opencontainers.image.authors="${MAINTAINER}" \
+      org.opencontainers.image.licenses="${LICENSE}" \
+      name="${TITLE}" \
+      maintainer="${MAINTAINER}" \
+      license="${LICENSE}" \
+      description="${DESCRIPTION}"
+
+ARG PYTHON_VERSION="3.12"
+ARG PYTHON_PKGS="python${PYTHON_VERSION} python${PYTHON_VERSION}-pip python3-pip"
+ARG DNF_TO_REMOVE="python${PYTHON_VERSION}-pip python3-pip tar"
+
+# amd64 - arm64
+ARG TARGETARCH
+# x86_64 - aarch64
+ARG ALTTARGETARCH
+# '' - arm64-
+ARG OPTTARGETARCH
+
+USER root
+
+# 'pip' is expected to be the pip resolved by 'python3 pip' AKA the one we install with PYTHON_VERSION
+RUN microdnf --disableplugin=subscription-manager install -y ${PYTHON_PKGS} && microdnf --disableplugin=subscription-manager clean all
+RUN alternatives --install /usr/bin/python3 python3 /usr/bin/python${PYTHON_VERSION} 0
+
+RUN microdnf --disableplugin=subscription-manager install -y make git-core tar gzip vi && \
+rm -rf /root/anaconda* /root/original-ks.cfg /usr/local/README /tmp/* && \
+microdnf clean all && \
+rm -rf /var/cache/dnf
+
+#USER 1001
+ENV HOME=/pattern-home
+ENV ANSIBLE_REMOTE_TMP=/pattern-home/.ansible/tmp
+ENV ANSIBLE_ASYNC_DIR=/tmp/.ansible/.async
+ENV ANSIBLE_LOCAL_TMP=/pattern-home/.ansible/tmp
+ENV ANSIBLE_LOCALHOST_WARNING=False
+ENV PIP_BREAK_SYSTEM_PACKAGES=1
+
+# Add requirements.yml file for ansible collections
+COPY requirements.yml /tmp/requirements.yml
+COPY requirements.txt /tmp/requirements.txt
+
+RUN pip install --no-cache-dir -r /tmp/requirements.txt && \
+ansible-galaxy collection install --collections-path /usr/share/ansible/collections -r /tmp/requirements.yml && \
+microdnf remove -y $DNF_TO_REMOVE && \
+mkdir -p /pattern/.ansible/tmp /pattern-home/.ansible/tmp && \
+chmod -R 770 /pattern/.ansible /pattern-home/.ansible
+
+COPY default-cmd.sh /usr/local/bin
+WORKDIR /pattern
+CMD ["/usr/local/bin/default-cmd.sh"]

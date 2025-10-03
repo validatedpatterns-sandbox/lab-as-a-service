@@ -1,0 +1,6 @@
+---
+# Define Ansible collection requirements here
+collections:
+  - name: community.general
+  - name: kubernetes.core
+  - name: git+https://github.com/ansible/ansible.platform,stable-2.5
