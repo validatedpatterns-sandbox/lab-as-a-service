@@ -10,6 +10,7 @@
   ansible.builtin.template:
     src: install-config.yaml.j2
     dest: "{{ deployment_config_dir }}/{{ cluster.name }}-install-config.yaml"
+    mode: "0644"
 
 - name: Create install-config secrets
   kubernetes.core.k8s:
