@@ -7,7 +7,7 @@
 {% if cluster.cloud.provider == 'Azure' %}
       azure:
         osDisk:
-          diskSizeGB: 128
+          diskSizeGB: {{ cluster.workers.disk.size }}
         type: {{ cluster.workers.machineType }}
 {% elif cluster.cloud.provider == 'Google' %}
       gcp:
@@ -17,7 +17,7 @@
         rootVolume:
           iops: {{ cluster.workers.disk.iops }}
           size: {{ cluster.workers.disk.size }}
-          type: {{ cluster.workers.disk.type }}
+          type: {{ cluster.workers.disk.type | default('gp3') }}
       type: {{ cluster.workers.machineType }}
 {% endif %}
   controlPlane:
@@ -27,18 +27,18 @@
 {% if cluster.cloud.provider == 'Azure' %}
       azure:
         osDisk:
-          diskSizeGB: 128
-        type: {{ cluster.workers.machineType }}
+          diskSizeGB: {{ cluster.controlPlane.disk.size }}
+        type: {{ cluster.controlPlane.machineType }}
 {% elif cluster.cloud.provider == 'Google' %}
       gcp:
-        type: {{ cluster.workers.machineType }}
+        type: {{ cluster.controlPlane.machineType }}
 {% else %}
       aws:
         rootVolume:
-          iops: {{ cluster.workers.disk.iops }}
-          size: {{ cluster.workers.disk.size }}
-          type: {{ cluster.workers.disk.type }}
-      type: {{ cluster.workers.machineType }}
+          iops: {{ cluster.controlPlane.disk.iops }}
+          size: {{ cluster.controlPlane.disk.size }}
+          type: {{ cluster.controlPlane.disk.type | default('gp3') }}
+      type: {{ cluster.controlPlane.machineType }}
 {% endif %}
   metadata:
     name: {{ cluster.name }}
@@ -56,7 +56,7 @@
       region: {{ cluster.region }}
 {% elif cluster.cloud.provider == 'Azure' %}
     azure:
-      cloudName: {{ azure.cloudName }}
+      cloudName: {{ azure.cloudName | default('AzurePublicCloud')}}
       baseDomainResourceGroupName: {{ azure.baseDomainResourceGroupName }}
 {% else %}
     aws:
