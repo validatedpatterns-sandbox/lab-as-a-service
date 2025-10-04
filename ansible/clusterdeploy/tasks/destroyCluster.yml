@@ -4,7 +4,7 @@
     state: absent
     api_version: cluster.open-cluster-management.io/v1
     kind: ManagedCluster
-    wait: true
+    wait: false
   when: destroy
 
 - name: "Destroy {{ cluster.name }}"
