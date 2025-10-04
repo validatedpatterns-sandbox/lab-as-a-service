@@ -1,4 +1,12 @@
 ---
+- name: "remove {{ cluster.name }} managedCluser resource"
+  kubernetes.core.k8s:
+    state: absent
+    api_version: cluster.open-cluster-management.io/v1
+    kind: ManagedCluster
+    wait: false
+  when: destroy
+
 - name: "Destroy {{ cluster.name }}"
   kubernetes.core.k8s:
     state: absent
@@ -10,7 +18,7 @@
   register: destroy_cluster
   when: destroy
 
-- name: "Wait forClusterDeployment to be fully deleted: {{ cluster.name }}"
+- name: "Wait for ClusterDeployment to be fully deleted: {{ cluster.name }}"
   kubernetes.core.k8s_info:
     api_version: hive.openshift.io/v1
     kind: ClusterDeployment
