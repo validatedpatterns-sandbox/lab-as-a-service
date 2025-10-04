@@ -23,6 +23,13 @@
   delay: 10
   when: destroy
 
+- name: "remove {{ cluster.name }} managedCluser resource"
+  kubernetes.core.k8s:
+    state: absent
+    api_version: hive.openshift.io/v1
+    kind: ManagedCluster
+  when: destroy
+
 - name: "Remove namespace {{ cluster.namespace }}"
   kubernetes.core.k8s:
     api_version: v1
