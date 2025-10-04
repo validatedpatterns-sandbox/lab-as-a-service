@@ -58,6 +58,7 @@
     azure:
       cloudName: {{ azure.cloudName | default('AzurePublicCloud')}}
       baseDomainResourceGroupName: {{ azure.baseDomainResourceGroupName }}
+      region: {{ cluster.region }}
 {% else %}
     aws:
       region: {{ cluster.region }}
