@@ -41,7 +41,7 @@
   kubernetes.core.k8s:
     state: present
     definition: "{{ lookup('template', 'aws-credentials.yaml.j2') | from_yaml }}"
-  when: cluster.cloud.provider == 'Amazon'
+  when: cloud.provider == 'Amazon'
 
 - name: Create GCP credentials secret
   kubernetes.core.k8s:
@@ -50,13 +50,13 @@
       apiVersion: v1
       kind: Secret
       metadata:
-        name: "{{ cluster.name }}-{{ cluster.cloud.provider | lower}}-credentials"
+        name: "{{ cluster.name }}-{{ cloud.provider | lower}}-credentials"
         namespace: "{{ cluster.namespace }}"
       type:
         Opaque
       data:
         osServiceAccount.json: "{{ lookup('file', '~/.gcp/osServiceAccount.json') | b64encode }}"
-  when: cluster.cloud.provider == 'Google'
+  when: cloud.provider == 'Google'
 
 - name: Create Azure credentials secret
   kubernetes.core.k8s:
@@ -65,12 +65,12 @@
       apiVersion: v1
       kind: Secret
       metadata:
-        name: "{{ cluster.name }}-{{ cluster.cloud.provider | lower}}-credentials"
+        name: "{{ cluster.name }}-{{ cloud.provider | lower}}-credentials"
         namespace: "{{ cluster.namespace }}"
       type: Opaque
       data:
         osServicePrincipal.json: "{{ lookup('file', '~/.azure/osServicePrincipal.json' ) | b64encode }}"
-  when: cluster.cloud.provider == 'Azure'
+  when: cloud.provider == 'Azure'
 
 - name: Create clusterDeployment resources
   kubernetes.core.k8s:

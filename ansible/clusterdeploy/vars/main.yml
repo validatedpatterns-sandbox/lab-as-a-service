@@ -1,48 +1,37 @@
-# SPDX-License-Identifier: MIT-0
----
-# vars file for clusterdeploy
-
-#placeholders for now until we figure out a better way to organize
-azure:
-  cloudName: '' #Defaults to AzurePublicCloud
-  baseDomainResourceGroupName: ''
-
-gcp:
-  projectID: ''
-
+# Define the cluster's high-level state regardless of the cloud.
 cluster:
-  clusterGroup: group-one
-  cloud:
-    provider: Amazon
-    access_key_id: xxxxxxxxx
-    secret_access_key: xxxxxxxxxxxxxxxxxx
-  region: us-west-2
-  baseDomain: example.com
   name: clustername
+  clusterGroup: devops #clusterGroup for application deployment to provisioned clusters
   namespace: cluster-namespace
+  version: img4.19.9-x86-64-appsub #oc get clusterimageset
+  baseDomain: example.com
+  region: us-west-2 
+
+# This section defines *which* cloud is used and contains common/primary cloud config.
+cloud:
+  provider: Amazon # Defines the active cloud provider (e.g., Amazon, Azure, GCP)
+  region: us-west-2 
+
+# Grouping hardware/scaling specs together.
+machinePools:
+  controlPlane:
+    replicas: 1
+    machineType: m5.2xlarge
+    disk:
+      size: 200 # GB
   workers:
     replicas: 1
     machineType: m5.2xlarge
     disk:
-      iops: 2000
-      size: 200
-      type: nvme
-  controlPlane:
-    replicas: 1
-    machineType: m5.2xlarge
-  version: img4.19.9-x86-64-appsub
+      size: 200 # GB
 
-
-#
-#cluster:
-#  google:
-#    projectID:
-#
-#cluster:
-#  azure:
-#    cloudName: AzurePublicCloud
-#    baseDomainResourceGroupName
-#cluster:
-#  aws:
-#    access_key_id:
-#    secret_access_key:
+# Cloud-Specific Configurations
+cloudConfig:
+  azure:
+    cloudName: AzurePublicCloud
+    baseDomainResourceGroupName: ''
+  gcp:
+    projectID: ''
+  aws:
+    access_key_id: ''
+    secret_access_key: ''
