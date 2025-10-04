@@ -78,11 +78,6 @@
     definition: "{{ lookup('template', 'clusterDeployment.yaml.j2') | from_yaml }}"
   register: cd
 
-#- name: Create machinePool resources
-#  kubernetes.core.k8s:
-#    state: present
-#    definition: "{{ lookup('template', 'machinepool.yaml.j2') | from_yaml }}"
-
 - name: Wait for adminKubeconfigSecretRef to be populated
   kubernetes.core.k8s_info:
     api_version: hive.openshift.io/v1
