@@ -13,6 +13,8 @@ spec:
     gcp:
 {% elif cluster.cloud.provider == 'Azure' %}
     azure:
+      baseDomainResourceGroupName: {{ azure.baseDomainResourceGroupName }}
+      cloudName: {{ azure.cloudName | default('AzurePublicCloud')}}
 {% else %}
     aws:
 {% endif %}
