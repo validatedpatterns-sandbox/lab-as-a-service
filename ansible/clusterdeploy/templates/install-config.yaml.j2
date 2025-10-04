@@ -2,43 +2,41 @@
   baseDomain: {{ cluster.baseDomain }}
   compute:
   - name: worker
-    replicas: {{ cluster.workers.replicas }}
+    replicas: {{ machinePools.workers.replicas }}
     platform:
-{% if cluster.cloud.provider == 'Azure' %}
+{% if cloud.provider == 'Azure' %}
       azure:
         osDisk:
-          diskSizeGB: {{ cluster.workers.disk.size }}
-        type: {{ cluster.workers.machineType }}
-{% elif cluster.cloud.provider == 'Google' %}
+          diskSizeGB: {{ machinePools.workers.disk.size }}
+        type: {{ machinePools.workers.machineType }}
+{% elif cloud.provider == 'Google' %}
       gcp:
-        type: {{ cluster.workers.machineType }}
+        type: {{ machinePools.workers.machineType }}
 {% else %}
       aws:
         rootVolume:
-          iops: {{ cluster.workers.disk.iops }}
-          size: {{ cluster.workers.disk.size }}
-          type: {{ cluster.workers.disk.type | default('gp3') }}
-      type: {{ cluster.workers.machineType }}
+          size: {{ machinePools.workers.disk.size }}
+          type: {{ machinePools.workers.disk.type | default('gp3') }}
+      type: {{ machinePools.workers.machineType }}
 {% endif %}
   controlPlane:
     name: master
-    replicas: {{ cluster.controlPlane.replicas }}
+    replicas: {{ machinePools.controlPlane.replicas }}
     platform:
-{% if cluster.cloud.provider == 'Azure' %}
+{% if cloud.provider == 'Azure' %}
       azure:
         osDisk:
-          diskSizeGB: {{ cluster.controlPlane.disk.size }}
-        type: {{ cluster.controlPlane.machineType }}
-{% elif cluster.cloud.provider == 'Google' %}
+          diskSizeGB: {{ machinePools.controlPlane.disk.size }}
+        type: {{ machinePools.controlPlane.machineType }}
+{% elif cloud.provider == 'Google' %}
       gcp:
-        type: {{ cluster.controlPlane.machineType }}
+        type: {{ machinePools.controlPlane.machineType }}
 {% else %}
       aws:
         rootVolume:
-          iops: {{ cluster.controlPlane.disk.iops }}
-          size: {{ cluster.controlPlane.disk.size }}
-          type: {{ cluster.controlPlane.disk.type | default('gp3') }}
-      type: {{ cluster.controlPlane.machineType }}
+          size: {{ machinePools.controlPlane.disk.size }}
+          type: {{ machinePools.controlPlane.disk.type | default('gp3') }}
+      type: {{ machinePools.controlPlane.machineType }}
 {% endif %}
   metadata:
     name: {{ cluster.name }}
@@ -50,18 +48,18 @@
     serviceNetwork:
     - 172.30.0.0/16
   platform:
-{% if cluster.cloud.provider == 'Google' %}
+{% if cloud.provider == 'Google' %}
     gcp:
-      projectID: {{ gcp.projectID }}
-      region: {{ cluster.region }}
-{% elif cluster.cloud.provider == 'Azure' %}
+      projectID: {{ cloudConfig.gcp.projectID }}
+      region: {{ cloud.region }}
+{% elif cloud.provider == 'Azure' %}
     azure:
-      cloudName: {{ azure.cloudName | default('AzurePublicCloud')}}
-      baseDomainResourceGroupName: {{ azure.baseDomainResourceGroupName }}
-      region: {{ cluster.region }}
+      cloudName: {{ cloudConfig.azure.cloudName | default('AzurePublicCloud')}}
+      baseDomainResourceGroupName: {{ cloudConfig.azure.baseDomainResourceGroupName }}
+      region: {{ cloud.region }}
 {% else %}
     aws:
-      region: {{ cluster.region }}
+      region: {{ cloud.region }}
 {% endif %}
   publish: External
   pullSecret: '{"auths": ...}'

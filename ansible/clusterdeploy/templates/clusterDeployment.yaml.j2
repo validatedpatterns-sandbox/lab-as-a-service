@@ -9,18 +9,18 @@ spec:
   clusterName: {{ cluster.name }}
   installAttemptsLimit: 1
   platform:
-{% if cluster.cloud.provider == 'Google' %}
+{% if cloud.provider == 'Google' %}
     gcp:
-{% elif cluster.cloud.provider == 'Azure' %}
+{% elif cloud.provider == 'Azure' %}
     azure:
-      baseDomainResourceGroupName: {{ azure.baseDomainResourceGroupName }}
-      cloudName: {{ azure.cloudName | default('AzurePublicCloud')}}
+      baseDomainResourceGroupName: {{ cloudConfig.azure.baseDomainResourceGroupName }}
+      cloudName: {{ cloudConfig.azure.cloudName | default('AzurePublicCloud')}}
 {% else %}
     aws:
 {% endif %}
-      region: {{ cluster.region }}
+      region: {{ cloud.region }}
       credentialsSecretRef:
-        name: {{ cluster.name }}-{{ cluster.cloud.provider |lower }}-credentials
+        name: {{ cluster.name }}-{{ cloud.provider |lower }}-credentials
   provisioning:
     installConfigSecretRef:
       name: {{ cluster.name }}-install-config
