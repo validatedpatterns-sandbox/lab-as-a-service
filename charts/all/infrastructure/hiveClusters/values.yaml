@@ -1,0 +1,16 @@
+# Default values for hiveClusters.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+secretStore:
+  name: vault-backend
+  kind: ClusterSecretStore
+
+awsCreds:
+  key: secret/data/hub/aws
+
+azureCreds:
+  key: secret/data/hub/azure
+
+gcpCreds:
+  key: secret/data/hub/gcp
