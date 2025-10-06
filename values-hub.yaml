@@ -17,6 +17,7 @@ clusterGroup:
       channel: stable-2.5
   argoProjects:
     - hub
+    - infrastructure
   sharedValueFiles:
     - '/overrides/values-{{ $.Values.global.clusterPlatform }}.yaml'
     - '/overrides/values-{{ $.Values.global.clusterVersion }}-{{ $.Values.clusterGroup.name }}.yaml'
@@ -44,6 +45,11 @@ clusterGroup:
       namespace: ansible-automation-platform
       argoProject: hub
       path: charts/hub/aap-config
+    hive:
+      name: hiveClusters
+      namespace: hive
+      project: infrastructure
+      path: charts/all/infrastructure/hiveClusters
   imperative:
     jobs:
       - name: hello-world
