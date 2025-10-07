@@ -1,14 +1,6 @@
-# Set conditions for create or destroy - override happens in makefile
-create: false
-destroy: false 
-
-# Plumbing for user provided credentials
-# user_provided_credentials: false
-
 # Define the cluster's high-level state regardless of the cloud.
 cluster:
   name: clustername
-  namespace: "{{ omit }}" # Default value is hive
   clusterGroup: devops # clusterGroup for application deployment to provisioned clusters
   version: img4.19.9-x86-64-appsub # oc get clusterimageset
   baseDomain: example.com
@@ -21,12 +13,12 @@ cloud:
 # Grouping hardware/scaling specs together.
 machinePools:
   controlPlane:
-    replicas: 1
+    replicas: 3
     machineType: m5.2xlarge
     disk:
       size: 200 # GB
   workers:
-    replicas: 1
+    replicas: 0
     machineType: m5.2xlarge
     disk:
       size: 200 # GB
@@ -34,10 +26,7 @@ machinePools:
 # Cloud-Specific Configurations
 cloudConfig:
   azure:
-    cloudName: AzurePublicCloud
     baseDomainResourceGroupName: ''
   gcp:
     projectID: ''
   aws:
-    access_key_id: ''
-    secret_access_key: ''
