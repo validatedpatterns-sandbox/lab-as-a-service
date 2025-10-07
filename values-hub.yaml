@@ -46,7 +46,7 @@ clusterGroup:
       project: hub
       path: charts/hub/aap-config
     hive:
-      name: hiveClusters
+      name: hive-clusters
       namespace: hive
       project: infrastructure
       path: charts/all/infrastructure/hiveClusters
