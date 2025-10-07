@@ -1,0 +1,17 @@
+- name: "Create install-config template"
+  ansible.builtin.template:
+    src: install-config.yaml.j2
+    dest: "{{ deployment_config_dir }}/{{ cluster.name }}-install-config.yaml"
+    mode: "0644"
+
+- name: Create install-config secrets
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: "{{ cluster.name }}-install-config"
+        namespace: "{{ cluster.namespace }}"
+      data:
+        install-config.yaml: "{{ lookup('file', '{{ deployment_config_dir }}/{{ cluster.name }}-install-config.yaml') | b64encode }}"

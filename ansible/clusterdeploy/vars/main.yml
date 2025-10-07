@@ -1,11 +1,17 @@
+# Set conditions for create or destroy - override happens in makefile
+create: false
+destroy: false 
+
+# Plumbing for user provided credentials
+# user_provided_credentials: false
+
 # Define the cluster's high-level state regardless of the cloud.
 cluster:
   name: clustername
-  clusterGroup: devops #clusterGroup for application deployment to provisioned clusters
-  namespace: cluster-namespace
-  version: img4.19.9-x86-64-appsub #oc get clusterimageset
+  namespace: "{{ omit }}" # Default value is hive
+  clusterGroup: devops # clusterGroup for application deployment to provisioned clusters
+  version: img4.19.9-x86-64-appsub # oc get clusterimageset
   baseDomain: example.com
-  region: us-west-2 
 
 # This section defines *which* cloud is used and contains common/primary cloud config.
 cloud:
