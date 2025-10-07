@@ -3,7 +3,7 @@ apiVersion: hive.openshift.io/v1
 kind: ClusterDeployment
 metadata:
   name: {{ cluster.name }}
-  namespace: {{ cluster.namespace }}
+  namespace: {{ cluster.namespace | default('hive') }}
 spec:
   baseDomain: {{ cluster.baseDomain }}
   clusterName: {{ cluster.name }}
@@ -11,20 +11,21 @@ spec:
   platform:
 {% if cloud.provider == 'Google' %}
     gcp:
+      credentialsSecretRef: gcp-creds
 {% elif cloud.provider == 'Azure' %}
     azure:
       baseDomainResourceGroupName: {{ cloudConfig.azure.baseDomainResourceGroupName }}
       cloudName: {{ cloudConfig.azure.cloudName | default('AzurePublicCloud')}}
+      credentialsSecretRef: azure-creds
 {% else %}
     aws:
+      credentialsSecretRef: aws-creds
 {% endif %}
       region: {{ cloud.region }}
-      credentialsSecretRef:
-        name: {{ cluster.name }}-{{ cloud.provider |lower }}-credentials
   provisioning:
     installConfigSecretRef:
       name: {{ cluster.name }}-install-config
     imageSetRef:
       name: {{ cluster.version }}
   pullSecretRef:
-    name: {{ cluster.name }}-pull-secret
+    name: global-pullsecret

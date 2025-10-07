@@ -2,10 +2,10 @@ apiVersion: agent.open-cluster-management.io/v1
 kind: KlusterletAddonConfig
 metadata:
   name: {{ cluster.name }}
-  namespace: {{ cluster.namespace }}
+  namespace: {{ cluster.namespace |default('hive')}}
 spec:
   clusterName: {{ cluster.name }}
-  clusterNamespace: {{ cluster.namespace }}
+  clusterNamespace: {{ cluster.namespace | default('hive')}}
   clusterLabels:
     cloud: auto-detect
     vendor: auto-detect

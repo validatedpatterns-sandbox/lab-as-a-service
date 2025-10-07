@@ -1,3 +1,16 @@
-# SPDX-License-Identifier: MIT-0
 ---
 # defaults file for clusterdeploy
+create: false
+destroy: false
+
+user_provided_credentials: false
+
+cluster:
+  namespace: hive
+  clusterset: default
+
+cloudConfig:
+  azure:
+    cloudName: AzurePublicCloud
+
+

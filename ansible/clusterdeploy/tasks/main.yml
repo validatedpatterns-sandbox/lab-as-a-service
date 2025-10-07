@@ -11,6 +11,14 @@
   ansible.builtin.set_fact:
     deployment_config_dir: "{{ cluster.name }}"
 
+- name: "Create cluster secrets - if using user_provided_credentials"
+  ansible.builtin.include_tasks: clusterSecrets.yml
+  when: user_provided_credentials
+
+- name: "Generate install-config for the clusterdeployment"
+  ansible.builtin.include_tasks: create-install-config.yml
+  when: create
+
 - name: "Create cluster tasks"
   ansible.builtin.include_tasks: createCluster.yml
   when: create
