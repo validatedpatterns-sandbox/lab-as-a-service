@@ -11,15 +11,18 @@ spec:
   platform:
 {% if cloud.provider == 'Google' %}
     gcp:
-      credentialsSecretRef: gcp-creds
+      credentialsSecretRef: 
+        name: gcp-creds
 {% elif cloud.provider == 'Azure' %}
     azure:
       baseDomainResourceGroupName: {{ cloudConfig.azure.baseDomainResourceGroupName }}
       cloudName: {{ cloudConfig.azure.cloudName | default('AzurePublicCloud')}}
-      credentialsSecretRef: azure-creds
+      credentialsSecretRef: 
+        name: azure-creds
 {% else %}
     aws:
-      credentialsSecretRef: aws-creds
+      credentialsSecretRef: 
+        name: aws-creds
 {% endif %}
       region: {{ cloud.region }}
   provisioning:

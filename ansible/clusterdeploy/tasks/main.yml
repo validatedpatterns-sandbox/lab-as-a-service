@@ -5,7 +5,7 @@
     name: "{{ cluster.name }}"
     state: directory
     mode: "0755"
-  when: create
+  when: create or debug_task
 
 - name: "Set deployment_config_dir fact"
   ansible.builtin.set_fact:
