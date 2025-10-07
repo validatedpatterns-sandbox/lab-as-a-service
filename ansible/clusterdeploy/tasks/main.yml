@@ -17,7 +17,7 @@
 
 - name: "Generate install-config for the clusterdeployment"
   ansible.builtin.include_tasks: create-install-config.yml
-  when: create
+  when: create or debug_task
 
 - name: "Create cluster tasks"
   ansible.builtin.include_tasks: createCluster.yml
@@ -26,3 +26,7 @@
 - name: "Destroy cluster tasks"
   ansible.builtin.include_tasks: destroyCluster.yml
   when: destroy
+
+- name: "Run debug play"
+  ansible.builtin.include_tasks: debug_task.yml
+  when: debug_task
