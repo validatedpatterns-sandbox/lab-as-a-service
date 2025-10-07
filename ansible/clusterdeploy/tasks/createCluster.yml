@@ -1,10 +1,11 @@
 # Deploy cluster using ACM
-#- name: "Create namespace {{ cluster.namespace }}"
-#  kubernetes.core.k8s:
-#    name: "{{ cluster.namespace }}"
-#    api_version: v1
-#    kind: Namespace
-#    state: present
+- name: "Create namespace {{ cluster.namespace }}"
+  kubernetes.core.k8s:
+    name: "{{ cluster.namespace }}"
+    api_version: v1
+    kind: Namespace
+    state: present
+  when: user_provided_credentials
 
 - name: Generate the clusterDeployment template
   ansible.builtin.template:
