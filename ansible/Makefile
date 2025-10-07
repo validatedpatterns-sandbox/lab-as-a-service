@@ -13,3 +13,7 @@ install: ## multicluster provisioning
 .PHONY: destroy
 destroy: ## Destroys clusters
 	ansible-playbook site.yaml -e "@vars.yml" -e destroy=true
+
+.PHONY: debug
+debug: ## Render templates locally
+	ansible-playbook site.yaml -e "@vars.yml" -e debug_task=true
