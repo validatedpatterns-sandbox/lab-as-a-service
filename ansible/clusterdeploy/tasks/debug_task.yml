@@ -1,0 +1,20 @@
+# Render Templates to ensure things are as expected
+
+- name: Generate the clusterDeployment template
+  ansible.builtin.template:
+    src: clusterDeployment.yaml.j2
+    dest: "{{ deployment_config_dir }}/clusterdeployment.yaml"
+    mode: "0644"
+
+- name: Generate the managedCluster template
+  ansible.builtin.template:
+    src: managedCluster.yaml.j2
+    dest: "{{ deployment_config_dir }}/managedCluster.yaml"
+    mode: "0644"
+
+- name: Generate the klusterletAddOnConfig template
+  ansible.builtin.template:
+    src: klusterletAddOnConfig.yaml.j2
+    dest: "{{ deployment_config_dir }}/klusterletAddOnConfig.yaml"
+    mode: "0644"
+
