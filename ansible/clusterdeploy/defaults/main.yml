@@ -2,6 +2,8 @@
 # defaults file for clusterdeploy
 create: false
 destroy: false
+# Render templates for debugging
+debug_task: false
 
 user_provided_credentials: false
 
