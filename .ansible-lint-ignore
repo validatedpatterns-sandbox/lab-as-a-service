@@ -1,1 +1,3 @@
 ansible/aap-playbooks/entitle-manifest.yml syntax-check[unknown-module] skip
+ansible/clusterdeploy/vars/main.yml var-naming[pattern] skip
+ansible/clusterdeploy/defaults/main.yml var-naming[pattern] skip

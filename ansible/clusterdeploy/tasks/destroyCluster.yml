@@ -1,5 +1,5 @@
 ---
-- name: "remove {{ cluster.name }} managedCluser resource"
+- name: "Remove managedCluser resource {{ cluster.name }}"
   kubernetes.core.k8s:
     state: absent
     api_version: cluster.open-cluster-management.io/v1

@@ -1,16 +1,16 @@
 # Define the cluster's high-level state regardless of the cloud.
 cluster:
   name: clustername
-  clusterGroup: devops #clusterGroup for application deployment to provisioned clusters
+  clusterGroup: devops # clusterGroup for application deployment to provisioned clusters
   namespace: cluster-namespace
-  version: img4.19.9-x86-64-appsub #oc get clusterimageset
+  version: img4.19.9-x86-64-appsub # oc get clusterimageset
   baseDomain: example.com
-  region: us-west-2 
+  region: us-west-2
 
 # This section defines *which* cloud is used and contains common/primary cloud config.
 cloud:
   provider: Amazon # Defines the active cloud provider (e.g., Amazon, Azure, GCP)
-  region: us-west-2 
+  region: us-west-2
 
 # Grouping hardware/scaling specs together.
 machinePools:
