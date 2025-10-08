@@ -1,5 +1,4 @@
 # Render Templates to ensure things are as expected
-
 - name: Generate the clusterDeployment template
   ansible.builtin.template:
     src: clusterDeployment.yaml.j2
@@ -17,4 +16,3 @@
     src: klusterletAddOnConfig.yaml.j2
     dest: "{{ deployment_config_dir }}/klusterletAddOnConfig.yaml"
     mode: "0644"
-

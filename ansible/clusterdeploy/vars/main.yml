@@ -8,7 +8,7 @@ cluster:
 # This section defines *which* cloud is used and contains common/primary cloud config.
 cloud:
   provider: Amazon # Defines the active cloud provider (e.g., Amazon, Azure, GCP)
-  region: us-west-2 
+  region: us-west-2
 
 # Grouping hardware/scaling specs together.
 machinePools:

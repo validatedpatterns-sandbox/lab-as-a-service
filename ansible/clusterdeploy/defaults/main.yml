@@ -14,5 +14,3 @@ cluster:
 cloudConfig:
   azure:
     cloudName: AzurePublicCloud
-
-
