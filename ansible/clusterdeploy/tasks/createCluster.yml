@@ -77,7 +77,7 @@
       apiVersion: v1
       kind: Secret
       metadata:
-        name: auto-import-secret
+        name: "{{ cluster.name }}-import-secret"
         namespace: "{{ cluster.namespace |default('hive') }}"
       type: Opaque
       data:
