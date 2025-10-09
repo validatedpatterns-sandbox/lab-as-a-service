@@ -31,17 +31,6 @@
   delay: 10
   when: destroy
 
-- name: "Remove namespace {{ cluster.namespace }}"
-  kubernetes.core.k8s:
-    api_version: v1
-    kind: Namespace
-    name: "{{ cluster.namespace }}"
-    state: absent
-  when:
-    - destroy
-    - deletion_status is succeeded
-    - cluster.namespace != 'hive'
-
 - name: "Remove {{ deployment_config_dir }}"
   ansible.builtin.file:
     state: absent
