@@ -13,7 +13,7 @@
     api_version: hive.openshift.io/v1
     kind: ClusterDeployment
     name: "{{ cluster.name }}"
-    namespace: "{{ cluster.namespace }}"
+    namespace: "{{ cluster.namespace |default('hive') }}"
     wait: false
   register: destroy_cluster
   when: destroy
@@ -23,7 +23,7 @@
     api_version: hive.openshift.io/v1
     kind: ClusterDeployment
     name: "{{ cluster.name }}"
-    namespace: "{{ cluster.namespace }}"
+    namespace: "{{ cluster.namespace |default('hive') }}"
   register: deletion_status
   until:
     - deletion_status.resources is not defined or deletion_status.resources | length == 0
@@ -40,6 +40,7 @@
   when:
     - destroy
     - deletion_status is succeeded
+    - cluster.namespace != 'hive'
 
 - name: "Remove {{ deployment_config_dir }}"
   ansible.builtin.file:
