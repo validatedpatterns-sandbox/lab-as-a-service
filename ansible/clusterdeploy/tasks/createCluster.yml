@@ -23,7 +23,7 @@
   kubernetes.core.k8s_info:
     api_version: hive.openshift.io/v1
     kind: ClusterDeployment
-    namespace: '{{ cluster.namespace }}'
+    namespace: "{{ cluster.namespace | default('hive') }}"
     name: '{{ cluster.name }}'
   register: cd_status
   until:
@@ -35,7 +35,7 @@
   kubernetes.core.k8s_info:
     api_version: v1
     kind: Pod
-    namespace: "{{ cluster.namespace }}"
+    namespace: "{{ cluster.namespace |default('hive') }}"
     label_selectors:
       - 'hive.openshift.io/cluster-deployment-name={{ cluster.name }}'
   register: pod_status
@@ -49,7 +49,7 @@
     api_version: hive.openshift.io/v1
     kind: ClusterDeployment
     name: "{{ cluster.name }}"
-    namespace: "{{ cluster.namespace }}"
+    namespace: "{{ cluster.namespace |default('hive') }}"
   register: cluster_deployment
 
 - name: Define the secret name as a fact for later use
@@ -61,7 +61,7 @@
     api_version: v1
     kind: Secret
     name: "{{ admin_secret_name }}"
-    namespace: "{{ cluster.namespace }}"
+    namespace: "{{ cluster.namespace |default('hive') }}"
   register: admin_secret_info
 
 - name: Decode and save kubeconfig to file
@@ -78,7 +78,7 @@
       kind: Secret
       metadata:
         name: auto-import-secret
-        namespace: "{{ cluster.namespace }}"
+        namespace: "{{ cluster.namespace |default('hive') }}"
       type: Opaque
       data:
         kubeconfig: "{{ lookup('file', '{{ deployment_config_dir }}/kubeconfig') | b64encode }}"
