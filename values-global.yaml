@@ -1,6 +1,6 @@
 ---
 global:
-  pattern: laas
+  pattern: lab-as-a-service
   options:
     useCSV: false
     syncPolicy: Automatic
