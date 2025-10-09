@@ -70,6 +70,14 @@
     dest: "{{ deployment_config_dir }}/kubeconfig"
     mode: '0600'
 
+- name: "Check if the {{ cluster.name }} namespace exists"
+  kubernetes.core.k8s_info:
+    api_version: v1
+    kind: Namespace
+    name: "{{ cluster.name }}"
+  register: namespace_check
+  ignore_errors: true
+
 - name: Create an import secret using the kubeconfig
   kubernetes.core.k8s:
     state: present
@@ -77,14 +85,15 @@
       apiVersion: v1
       kind: Secret
       metadata:
-        name: "{{ cluster.name }}-import-secret"
-        namespace: "{{ cluster.namespace |default('hive') }}"
+        name: "auto-import-secret"
+        namespace: "{{ cluster.name }}"
       type: Opaque
       data:
         kubeconfig: "{{ lookup('file', '{{ deployment_config_dir }}/kubeconfig') | b64encode }}"
   register: auto_import_secret
+  when: namespace_check.resources[0].status.phase == 'Active'
 
-- name: Create managecluster resource
+- name: Create managedcluster resource
   kubernetes.core.k8s:
     state: present
     definition: "{{ lookup('template', 'managedCluster.yaml.j2') | from_yaml }}"
