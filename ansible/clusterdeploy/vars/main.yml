@@ -1,32 +1,34 @@
 # Define the cluster's high-level state regardless of the cloud.
 cluster:
-  name: clustername
-  clusterGroup: devops # clusterGroup for application deployment to provisioned clusters
+  name: "{{ cluster_name_input }}"
+  clusterGroup: "{{ cluster_clusterGroup_input }}" devops # clusterGroup for application deployment to provisioned clusters
   version: img4.19.9-x86-64-appsub # oc get clusterimageset
-  baseDomain: example.com
+  baseDomain: "{{ cluster_baseDomain_input }}"
 
 # This section defines *which* cloud is used and contains common/primary cloud config.
 cloud:
-  provider: Amazon # Defines the active cloud provider (e.g., Amazon, Azure, GCP)
-  region: us-west-2
+  provider: "{{ cloud_provider_input }}"
+  region: "{{ cloud_region_input }}"
+
 
 # Grouping hardware/scaling specs together.
 machinePools:
   controlPlane:
-    replicas: 3
-    machineType: m5.2xlarge
+    replicas: "{{ mp_controlPlane_replicas_input }}"
+    machineType: "{{ mp_controlPlane_machineType_input }}"
     disk:
       size: 200 # GB
   workers:
-    replicas: 0
-    machineType: m5.2xlarge
+    replicas: "{{ mp_workers_replicas_input }}"
+    machineType: "{{ mp_workers_machineType_input }}"
     disk:
       size: 200 # GB
 
 # Cloud-Specific Configurations
 cloudConfig:
   azure:
-    baseDomainResourceGroupName: ''
+    cloudName: AzurePublicCloud
+    baseDomainResourceGroupName: "{{ cc_azure_resourceGroup_input }}"
   gcp:
-    projectID: ''
+    projectID: "{{ cc_gcp_projectID_input }}"
   aws: {}
