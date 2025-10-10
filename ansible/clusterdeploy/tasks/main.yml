@@ -23,10 +23,10 @@
   ansible.builtin.include_tasks: createCluster.yml
   when: create
 
-- name: "Destroy cluster tasks"
-  ansible.builtin.include_tasks: destroyCluster.yml
-  when: destroy
-
-- name: "Run debug play"
-  ansible.builtin.include_tasks: debug_task.yml
-  when: debug_task
+#- name: "Destroy cluster tasks"
+#  ansible.builtin.include_tasks: destroyCluster.yml
+#  when: destroy
+#
+#- name: "Run debug play"
+#  ansible.builtin.include_tasks: debug_task.yml
+#  when: debug_task
