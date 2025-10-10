@@ -64,4 +64,4 @@
   publish: External
   pullSecret: '{"auths": ...}'
   sshKey: |
-    {{ lookup('file', '~/.ssh/id_bastion.pub') }}
+    {{ lookup('env', 'ssh_public_key' }}
