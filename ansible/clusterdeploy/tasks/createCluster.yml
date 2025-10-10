@@ -70,6 +70,38 @@
     dest: "{{ deployment_config_dir }}/kubeconfig"
     mode: '0600'
 
+#- name: "Check if the {{ cluster.name }} namespace exists"
+#  kubernetes.core.k8s_info:
+#    api_version: v1
+#    kind: Namespace
+#    name: "{{ cluster.name }}"
+#  register: namespace_check
+#  ignore_errors: true
+#
+#- name: Create an import secret using the kubeconfig
+#  kubernetes.core.k8s:
+#    state: present
+#    definition:
+#      apiVersion: v1
+#      kind: Secret
+#      metadata:
+#        name: "auto-import-secret"
+#        namespace: "{{ cluster.name }}"
+#      type: Opaque
+#      data:
+#        kubeconfig: "{{ lookup('file', '{{ deployment_config_dir }}/kubeconfig') | b64encode }}"
+#  register: auto_import_secret
+
+- name: Create managedcluster resource
+  kubernetes.core.k8s:
+    state: present
+    definition: "{{ lookup('template', 'managedCluster.yaml.j2') | from_yaml }}"
+
+- name: Create klusterletAddOnConfig
+  kubernetes.core.k8s:
+    state: present
+    definition: "{{ lookup('template', 'klusterletAddOnConfig.yaml.j2') | from_yaml }}"
+
 - name: "Check if the {{ cluster.name }} namespace exists"
   kubernetes.core.k8s_info:
     api_version: v1
@@ -91,14 +123,4 @@
       data:
         kubeconfig: "{{ lookup('file', '{{ deployment_config_dir }}/kubeconfig') | b64encode }}"
   register: auto_import_secret
-  when: namespace_check.resources[0].status.phase == 'Active'
 
-- name: Create managedcluster resource
-  kubernetes.core.k8s:
-    state: present
-    definition: "{{ lookup('template', 'managedCluster.yaml.j2') | from_yaml }}"
-
-- name: Create klusterletAddOnConfig
-  kubernetes.core.k8s:
-    state: present
-    definition: "{{ lookup('template', 'klusterletAddOnConfig.yaml.j2') | from_yaml }}"
