@@ -6,6 +6,7 @@ clusterGroup:
     - golang-external-secrets
     - open-cluster-management
     - vault
+    - group-sync-operator
   subscriptions:
     acm:
       name: advanced-cluster-management
@@ -15,6 +16,10 @@ clusterGroup:
       name: ansible-automation-platform-operator
       namespace: ansible-automation-platform
       channel: stable-2.5
+    group-sync-operator:
+      name: group-sync-operator
+      namespace: group-sync-operator
+      channel: alpha
   argoProjects:
     - hub
     - infrastructure
