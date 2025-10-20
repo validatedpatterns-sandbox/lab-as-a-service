@@ -1,6 +1,9 @@
 clusterGroup:
   name: hub
   isHubCluster: true
+  sharedValuesFiles:
+    - /values-laas.yaml
+
   namespaces:
     - ansible-automation-platform
     - golang-external-secrets
