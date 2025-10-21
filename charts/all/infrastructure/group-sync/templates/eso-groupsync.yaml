@@ -12,7 +12,6 @@ spec:
   target:
     name: ldap-group-sync
     creationPolicy: Owner
-    type: Opaque
   dataFrom:
   - extract:
        key: secret/data/hub/ldap
