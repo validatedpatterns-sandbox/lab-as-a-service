@@ -64,6 +64,11 @@ clusterGroup:
       namespace: group-sync-operator
       project: infrastructure
       path: charts/all/infrastructure/group-sync
+    ldap-oauth:
+      name: ldap-oauth
+      namespace: openshift-config
+      project: infrastructure
+      path: charts/all/infrastructure/oauth
   imperative:
     jobs:
       - name: hello-world
