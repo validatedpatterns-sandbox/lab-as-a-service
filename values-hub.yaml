@@ -1,7 +1,7 @@
 clusterGroup:
   name: hub
   isHubCluster: true
-  sharedValuesFiles:
+  sharedValueFiles:
     - /values-laas.yaml
 
   namespaces:
