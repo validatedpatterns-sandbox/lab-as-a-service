@@ -8,6 +8,6 @@ ldap:
   baseDN: "cn=accounts,dc=aws,dc=validatedpatterns,dc=io"
   usersDN: "cn=users"
   groupsDN: "cn=groups"
+  whitelistDN: "cn=ipausers"
   groupsync:
     enabled: true
-    whitelist: "cn=ipausers,cn=groups,cn=accounts,dc=aws,dc=validatedpatterns,dc=io"
