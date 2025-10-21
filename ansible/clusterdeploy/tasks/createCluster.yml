@@ -101,4 +101,3 @@
       data:
         kubeconfig: "{{ lookup('file', '{{ deployment_config_dir }}/kubeconfig') | b64encode }}"
   register: auto_import_secret
-
