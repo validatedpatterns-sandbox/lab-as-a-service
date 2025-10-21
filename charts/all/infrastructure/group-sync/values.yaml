@@ -1,0 +1,12 @@
+# Default values for group-sync.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+groupsync:
+  ldap: 
+    enabled: false
+    whitelist: "cn=ipausers,cn=groups,cn=accounts,dc=aws,dc=validatedpatterns,dc=io"
+    baseDN: "cn=accounts,dc=aws,dc=validatedpatterns,dc=io"
+    userQuery: "cn=users"
+    groupQuery: "cn=groups"
+    url: "ldap://idm-lab.aws.validatedpatterns.io:389"
