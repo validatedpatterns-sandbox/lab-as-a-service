@@ -1,0 +1,28 @@
+{{- if .Values.ldap.oauth.enabled }}
+apiVersion: config.openshift.io/v1
+kind: OAuth
+metadata:
+  name: cluster
+spec:
+  identityProviders:
+  - name: ldapidp
+    mappingMethod: claim
+    type: LDAP
+    ldap:
+      attributes:
+        id:
+        - dn
+        email:
+        - mail
+        name:
+        - cn
+        preferredUsername:
+        - uid
+      {{- with .Values.ldap }}
+      bindDN: "{{ .bindDN }},{{ .usersDN }},{{ .baseDN }}"
+      bindPassword:
+        name: ldap-secret
+      insecure: {{ .insecure }}
+      url: "{{ .url }}/{{ .usersDN }},{{ .baseDN }}?uid"
+      {{- end }}
+{{- end }}

@@ -1,0 +1,13 @@
+# Default values for oauth.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+ldap:
+  url: "ldap://idm-lab.aws.validatedpatterns.io:389"
+  insecure: true
+  baseDN: "cn=accounts,dc=aws,dc=validatedpatterns,dc=io"
+  bindDN: "uid=reader"
+  usersDN: "cn=users"
+  groupsDN: "cn=groups"
+  oauth:
+    enabled: true
