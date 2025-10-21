@@ -1,0 +1,19 @@
+{{- if .Values.groupsync.ldap.enabled }}
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata:
+  name: ldap-group-sync
+  namespace: group-sync-operator
+spec:
+  refreshInterval: 15s
+  secretStoreRef:
+    name: vault-backend
+    kind: ClusterSecretStore
+  target:
+    name: ldap-group-sync
+    creationPolicy: Owner
+    type: Opaque
+  dataFrom:
+  - extract:
+       key: secret/data/hub/ldap
+{{- end }}

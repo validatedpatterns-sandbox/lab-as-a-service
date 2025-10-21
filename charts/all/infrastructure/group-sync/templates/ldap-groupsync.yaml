@@ -1,0 +1,38 @@
+{{- if .Values.groupsync.ldap.enabled }}
+apiVersion: redhatcop.redhat.io/v1alpha1
+kind: GroupSync
+metadata:
+  name: ldap-groupsync
+  namespace: group-sync-operator
+spec:
+  providers:
+  - ldap:
+      credentialsSecret:
+        name: ldap-group-sync
+        namespace: group-sync-operator
+      whitelist:
+      - {{ .Values.groupsync.ldap.whitelist }}
+      insecure: true
+      rfc2307:
+        groupMembershipAttributes:
+        - member
+        groupNameAttributes:
+        - cn
+        groupUIDAttribute: dn
+        groupsQuery:
+          baseDN: {{ .Values.groupsync.ldap.groupQuery }},{{ .Values.groupsync.ldap.baseDN }}
+          derefAliases: never
+          filter: (objectClass=groupofnames)
+          scope: sub
+        tolerateMemberNotFoundErrors: true
+        tolerateMemberOutOfScopeErrors: true
+        userNameAttributes:
+        - cn
+        userUIDAttribute: dn
+        usersQuery:
+          baseDN: {{ .Values.groupsync.ldap.userQuery }},{{ .Values.groupsync.ldap.baseDN }}
+          derefAliases: never
+          scope: sub
+      url: {{ .Values.groupsync.ldap.url }}
+    name: ldap
+{{- end }}
