@@ -12,7 +12,6 @@ spec:
   target:
     name: ldap-secret
     creationPolicy: Owner
-    type: Opaque
   data:
     - secretKey: bindPassword
       remoteRef:
