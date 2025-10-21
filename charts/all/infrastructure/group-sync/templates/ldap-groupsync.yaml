@@ -1,4 +1,4 @@
-{{- if .Values.groupsync.ldap.enabled }}
+{{- if .Values.ldap.groupsync.enabled }}
 apiVersion: redhatcop.redhat.io/v1alpha1
 kind: GroupSync
 metadata:
@@ -11,8 +11,8 @@ spec:
         name: ldap-group-sync
         namespace: group-sync-operator
       whitelist:
-      - {{ .Values.groupsync.ldap.whitelist }}
-      insecure: true
+      - {{ .Values.ldap.groupsync.whitelist }}
+      insecure: {{ .Values.ldap.insecure }}
       rfc2307:
         groupMembershipAttributes:
         - member
@@ -20,7 +20,8 @@ spec:
         - cn
         groupUIDAttribute: dn
         groupsQuery:
-          baseDN: {{ .Values.groupsync.ldap.groupQuery }},{{ .Values.groupsync.ldap.baseDN }}
+        {{- with .Values.ldap }}
+          baseDN: "{{ .groupsDN }},{{ .baseDN }}"
           derefAliases: never
           filter: (objectClass=groupofnames)
           scope: sub
@@ -30,9 +31,10 @@ spec:
         - cn
         userUIDAttribute: dn
         usersQuery:
-          baseDN: {{ .Values.groupsync.ldap.userQuery }},{{ .Values.groupsync.ldap.baseDN }}
+          baseDN: "{{ .usersDN }},{{ .baseDN }}"
           derefAliases: never
           scope: sub
-      url: {{ .Values.groupsync.ldap.url }}
+      url: {{ .url }}
+        {{- end }}
     name: ldap
 {{- end }}
