@@ -1,4 +1,4 @@
-{{- if .Values.groupsync.ldap.enabled }}
+{{- if .Values.ldap.groupsync.enabled }}
 apiVersion: external-secrets.io/v1beta1
 kind: ExternalSecret
 metadata:
