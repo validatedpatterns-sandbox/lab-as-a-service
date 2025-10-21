@@ -4,6 +4,8 @@ kind: ExternalSecret
 metadata:
   name: ldap-secret
   namespace: openshift-config
+  annotations:
+    argocd.argoproj.io/compare-options: IgnoreExtraneous
 spec:
   refreshInterval: 15s
   secretStoreRef:
