@@ -2,7 +2,7 @@ clusterGroup:
   name: hub
   isHubCluster: true
   sharedValueFiles:
-    - /values-laas.yaml
+    - /values-lab-as-a-service.yaml
 
   namespaces:
     - ansible-automation-platform
