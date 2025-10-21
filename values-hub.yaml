@@ -1,8 +1,6 @@
 clusterGroup:
   name: hub
   isHubCluster: true
-  sharedValueFiles:
-    - /values-lab-as-a-service.yaml
 
   namespaces:
     - ansible-automation-platform
@@ -30,6 +28,7 @@ clusterGroup:
   sharedValueFiles:
     - '/overrides/values-{{ $.Values.global.clusterPlatform }}.yaml'
     - '/overrides/values-{{ $.Values.global.clusterVersion }}-{{ $.Values.clusterGroup.name }}.yaml'
+    - '/values-lab-as-a-service.yaml'
   applications:
     acm:
       name: acm
