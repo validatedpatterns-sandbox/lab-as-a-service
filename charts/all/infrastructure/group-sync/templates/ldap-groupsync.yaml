@@ -10,9 +10,10 @@ spec:
       credentialsSecret:
         name: ldap-group-sync
         namespace: group-sync-operator
+      {{- with .Values.ldap }}
       whitelist:
-      - {{ .Values.ldap.groupsync.whitelist }}
-      insecure: {{ .Values.ldap.insecure }}
+      - {{ .whitelistDN }},{{ .groupsDN }},{{ .baseDN }}
+      insecure: {{ .insecure }}
       rfc2307:
         groupMembershipAttributes:
         - member
@@ -20,7 +21,6 @@ spec:
         - cn
         groupUIDAttribute: dn
         groupsQuery:
-        {{- with .Values.ldap }}
           baseDN: "{{ .groupsDN }},{{ .baseDN }}"
           derefAliases: never
           filter: (objectClass=groupofnames)
@@ -35,6 +35,6 @@ spec:
           derefAliases: never
           scope: sub
       url: {{ .url }}
-        {{- end }}
+      {{- end }}
     name: ldap
 {{- end }}
