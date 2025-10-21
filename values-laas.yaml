@@ -1,4 +1,12 @@
 ldap:
+  url: "ldap://idm-lab.aws.validatedpatterns.io:389"
+  insecure: true
+  baseDN: "cn=accounts,dc=aws,dc=validatedpatterns,dc=io"
+  bindDN: "uid=reader"
+  usersDN: "cn=users"
+  groupsDN: "cn=groups"
+  whitelistDN: "cn=ipausers"
+
   oauth:
     enabled: true
   groupsync:
