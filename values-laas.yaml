@@ -1,0 +1,5 @@
+ldap:
+  oauth:
+    enabled: true
+  groupsync:
+    enabled: true
