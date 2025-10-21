@@ -3,9 +3,9 @@
 # Declare variables to be passed into your templates.
 
 ldap:
-  url: "ldap://idm-lab.aws.validatedpatterns.io:389"
+  url: "ldap://ldap-server.example.com:389"
   insecure: true
-  baseDN: "cn=accounts,dc=aws,dc=validatedpatterns,dc=io"
+  baseDN: "cn=accounts,dc=example,dc=com"
   usersDN: "cn=users"
   groupsDN: "cn=groups"
   whitelistDN: "cn=ipausers"
