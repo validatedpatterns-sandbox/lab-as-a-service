@@ -1,0 +1,13 @@
+ldap:
+  url: "ldap://ldap-server.example.com:389"
+  insecure: true
+  baseDN: "cn=accounts,dc=example,dc=com"
+  bindDN: "uid=reader"
+  usersDN: "cn=users"
+  groupsDN: "cn=groups"
+  whitelistDN: "cn=ipausers"
+
+  oauth:
+    enabled: false
+  groupsync:
+    enabled: false
