@@ -22,9 +22,14 @@ clusterGroup:
       namespace: group-sync-operator
       channel: alpha
       source: community-operators
+    openshift-pipelines:
+      name: openshift-pipelines-operator-rh
+      namespace: openshift-operators
+      channel: latest
   argoProjects:
     - hub
     - infrastructure
+    - pipelines
   sharedValueFiles:
     - '/overrides/values-{{ $.Values.global.clusterPlatform }}.yaml'
     - '/overrides/values-{{ $.Values.global.clusterVersion }}-{{ $.Values.clusterGroup.name }}.yaml'
@@ -68,6 +73,11 @@ clusterGroup:
       namespace: openshift-config
       project: infrastructure
       path: charts/all/infrastructure/oauth
+    #pipelines:
+    #  name: cluster-pipelines
+    #  namespace: 
+    #  project: pipelines
+    #  path: charts/all/infrastructure/pipelines
   imperative:
     jobs:
       - name: hello-world
