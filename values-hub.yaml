@@ -58,6 +58,7 @@ clusterGroup:
       namespace: hive
       project: infrastructure
       path: charts/all/infrastructure/hiveClusters
+      disabled: true
     group-sync:
       name: group-sync-config
       namespace: group-sync-operator
