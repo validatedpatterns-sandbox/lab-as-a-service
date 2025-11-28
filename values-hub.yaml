@@ -53,6 +53,7 @@ clusterGroup:
       namespace: ansible-automation-platform
       argoProject: hub
       path: charts/hub/aap-config
+      disabled: true
     hive:
       name: hive-clusters
       namespace: hive
@@ -64,11 +65,14 @@ clusterGroup:
       namespace: group-sync-operator
       project: infrastructure
       path: charts/all/infrastructure/group-sync
+      disabled: true
     ldap-oauth:
       name: ldap-oauth
       namespace: openshift-config
       project: infrastructure
       path: charts/all/infrastructure/oauth
+      disabled: true
+      
   imperative:
     jobs:
       - name: hello-world
